@@ -1,0 +1,184 @@
+# =====================================================
+# Pet Virtual Platform 模块配置
+# =====================================================
+
+pet:
+  # ==================== 文件存储配置 ====================
+  file:
+    s3:
+      # S3兼容存储的访问密钥ID
+      access-key-id: ${S3_ACCESS_KEY_ID:xxx}
+      # S3兼容存储的访问密钥Secret
+      access-key-secret: ${S3_ACCESS_KEY_SECRET:xxx}
+      # S3兼容存储的端点URL
+      # Cloudflare R2: https://<account_id>.r2.cloudflarestorage.com
+      # AWS S3: https://s3.<region>.amazonaws.com
+      # MinIO: http://localhost:9000
+      endpoint: ${S3_ENDPOINT:https://xxx.r2.cloudflarestorage.com}
+      # 区域（Cloudflare R2使用auto，AWS S3使用具体区域如us-east-1）
+      region: ${S3_REGION:auto}
+      # 存储桶名称
+      bucket: ${S3_BUCKET:aidog}
+      # 公开访问域名（CDN或自定义域名，用于生成文件URL）
+      public-domain: ${S3_PUBLIC_DOMAIN:}
+      # 是否启用路径样式访问（MinIO需要设为true，AWS S3设为false）
+      path-style-access: ${S3_PATH_STYLE_ACCESS:false}
+      # 分片上传大小（MB）
+      part-size: 10
+      # 上传超时时间（秒）
+      upload-timeout: 300
+
+  # ==================== Web3支付配置 ====================
+  web3:
+    # 是否启用区块链交易扫描
+    scan-enabled: true
+    # 无新交易时的等待间隔（ms）：BSC 出块 ~3s，2s 足以跟上
+    scan-interval: 2000
+    # 发现新交易后的快速复扫间隔（ms）：有活动时尽快处理下一批
+    scan-interval-active: 500
+    # 服务启动后延迟多久开始扫描（ms）：等待 DB/Redis 连接池就绪
+    startup-delay: 10000
+    # Infura项目ID（用于以太坊RPC，可选）
+    infura-project-id: ${WEB3_INFURA_PROJECT_ID:}
+    # 确认交易后是否自动处理
+    auto-process-transaction: true
+
+  # ==================== AI模块配置 ====================
+  ai:
+    provider: ${AI_PROVIDER:grok}
+    # OpenAI 配置
+    openai:
+      # OpenAI API密钥
+      api-key: ${OPENAI_API_KEY:sk-xxxx}
+      # OpenAI API基础URL（可选，用于代理或自定义端点）
+      base-url: ${OPENAI_BASE_URL:https://api.xxx.com/v1}
+      # 默认视频生成模型
+      default-video-model: ${OPENAI_DEFAULT_VIDEO_MODEL:sora-2}
+      # 请求超时时间（秒）
+      timeout: 60
+      # 任务状态轮询间隔（秒）
+      poll-interval: 5
+      # 最大轮询次数
+      max-poll-attempts: 720
+
+    # 火山引擎 Ark 配置（Seedance 模型）
+    ark:
+      # 火山引擎 API 密钥（获取：https://console.volcengine.com/ark/region:ark+cn-beijing/apiKey）
+      api-key: ${ARK_API_KEY:97dd8e63xxxd305a2582027}
+      # API 基础 URL（默认为北京区域）
+      base-url: ${ARK_BASE_URL:https://ark.cn-xxx.volces.com/api/v3}
+      # 默认视频生成模型
+      default-video-model: ${ARK_DEFAULT_VIDEO_MODEL:doubao-seedance-1-5-pro-251215}
+      # 请求超时时间（秒）
+      timeout: 60
+      # 任务状态轮询间隔（秒）
+      poll-interval: 10
+      # 最大轮询次数（默认 1 小时）
+      max-poll-attempts: 360
+      # 是否启用水印（默认关闭）
+      watermark-enabled: false
+      # 是否启用音频生成（默认关闭，仅 1.5 pro 支持）
+      audio-enabled: false
+
+    # xAI Grok Imagine 配置
+    grok:
+      # xAI API 密钥（获取：https://console.x.ai/）
+      api-key: ${GROK_API_KEY:xai-xxxx}
+      # API 基础 URL（默认为官方 API）
+      base-url: ${GROK_BASE_URL:https://api.x.ai/v1}
+      # 默认视频生成模型（grok-imagine-1.0 支持 10 秒 720p 视频）
+      default-video-model: ${GROK_DEFAULT_VIDEO_MODEL:grok-imagine-video}
+      # 请求超时时间（秒）
+      timeout: 60
+      # 任务状态轮询间隔（秒）
+      poll-interval: 5
+      # 最大轮询次数
+      max-poll-attempts: 720
+
+  # ==================== 虚拟宠物平台配置 ====================
+  virtual:
+    # OAuth2 第三方登录配置
+    oauth2:
+      google:
+        client-id: ${GOOGLE_CLIENT_ID:xxx-xxx.apps.googleusercontent.com}
+        client-secret: ${GOOGLE_CLIENT_SECRET:xxxxxx-xxx-XcM_gRbnNA4IO}
+        redirect-uri: ${GOOGLE_REDIRECT_URI:http://xxx:3000/auth/callback}
+      microsoft:
+        client-id: ${MICROSOFT_CLIENT_ID:}
+        client-secret: ${MICROSOFT_CLIENT_SECRET:}
+        redirect-uri: ${MICROSOFT_REDIRECT_URI:https://xxxx.online/auth/callback/microsoft}
+      twitter:
+        client-id: ${TWITTER_CLIENT_ID:}
+        client-secret: ${TWITTER_CLIENT_SECRET:}
+        redirect-uri: ${TWITTER_REDIRECT_URI:https://xxxx.online/auth/callback/twitter}
+
+    # 邮件验证码配置
+    email:
+      # 验证码有效期（分钟）
+      code-expire-minutes: 5
+      # 验证码长度
+      code-length: 6
+      # 发送间隔（秒）
+      send-interval-seconds: 60
+
+    # Telegram Bot 配置
+    telegram:
+      # 是否启用 Bot 服务
+      enabled: ${TELEGRAM_ENABLED:false}
+      # Bot Token（从 @BotFather 获取）
+      bot-token: ${TELEGRAM_BOT_TOKEN:}
+      # Bot 用户名（不带 @）
+      bot-username: ${TELEGRAM_BOT_USERNAME:}
+      # 是否使用 Webhook（true=Webhook, false=Long Polling）
+      use-webhook: ${TELEGRAM_USE_WEBHOOK:false}
+      # Webhook URL（必须 HTTPS）
+      webhook-url: ${TELEGRAM_WEBHOOK_URL:https://api.your-domain.com/api/virtual/telegram/webhook}
+
+    # 积分系统配置
+    credits:
+      # 新用户注册赠送积分
+      initial-credits: 500
+      # 每日登录奖励积分
+      daily-login-credits: 10
+
+    # 充值订单配置
+    recharge:
+      # 订单过期时间（分钟）
+      order-expire-minutes: 30
+
+    # 分享功能配置
+    share:
+      # 分享链接的前端基础URL（用于生成分享落地页链接）
+      # 开发环境默认 http://localhost:3000，生产环境改为实际域名如 https://pet.example.com
+      base-url: ${SHARE_BASE_URL:http://localhost:3000}
+
+# ==================== 邮件配置 ====================
+spring:
+  mail:
+    # SMTP 服务器地址
+    host: ${MAIL_HOST:smtp.gmail.com}
+    # SMTP 端口（TLS=587, SSL=465）
+    port: ${MAIL_PORT:587}
+    # 发件人邮箱账号
+    username: ${MAIL_USERNAME:xxxx@gmail.com}
+    # 邮箱授权码（不是登录密码）
+    password: ${MAIL_PASSWORD:xxxx}
+    # 协议
+    protocol: smtp
+    # 默认编码
+    default-encoding: UTF-8
+    properties:
+      mail:
+        smtp:
+          # 是否需要认证
+          auth: true
+          # 启用 TLS
+          starttls:
+            enable: true
+            required: true
+          # 连接超时（毫秒）
+          connectiontimeout: 5000
+          # 读取超时（毫秒）
+          timeout: 5000
+          # 写入超时（毫秒）
+          writetimeout: 5000

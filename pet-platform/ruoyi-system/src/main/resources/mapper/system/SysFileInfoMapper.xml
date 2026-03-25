@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.SysFileInfoMapper">
+
+    <resultMap type="SysFileInfo" id="SysFileInfoResult">
+        <id     property="fileId"          column="file_id"          />
+        <result property="fileName"        column="file_name"        />
+        <result property="fileKey"         column="file_key"         />
+        <result property="fileUrl"         column="file_url"         />
+        <result property="fileSize"        column="file_size"        />
+        <result property="fileType"        column="file_type"        />
+        <result property="mimeType"        column="mime_type"        />
+        <result property="fileExt"         column="file_ext"         />
+        <result property="storageProvider" column="storage_provider" />
+        <result property="bucketName"      column="bucket_name"      />
+        <result property="uploadUserId"    column="upload_user_id"   />
+        <result property="uploadUserType"  column="upload_user_type" />
+        <result property="businessType"    column="business_type"    />
+        <result property="businessId"      column="business_id"      />
+        <result property="status"          column="status"           />
+        <result property="remark"          column="remark"           />
+        <result property="createBy"        column="create_by"        />
+        <result property="createTime"      column="create_time"      />
+        <result property="updateBy"        column="update_by"        />
+        <result property="updateTime"      column="update_time"      />
+    </resultMap>
+
+    <sql id="selectFileInfoVo">
+        select file_id, file_name, file_key, file_url, file_size, file_type, mime_type, file_ext,
+               storage_provider, bucket_name, upload_user_id, upload_user_type, business_type,
+               business_id, status, remark, create_by, create_time, update_by, update_time
+        from sys_file_info
+    </sql>
+
+    <select id="selectFileInfoById" parameterType="Long" resultMap="SysFileInfoResult">
+        <include refid="selectFileInfoVo"/>
+        where file_id = #{fileId}
+    </select>
+
+    <select id="selectFileInfoByKey" parameterType="String" resultMap="SysFileInfoResult">
+        <include refid="selectFileInfoVo"/>
+        where file_key = #{fileKey}
+    </select>
+
+    <select id="selectFileInfoList" parameterType="SysFileInfo" resultMap="SysFileInfoResult">
+        <include refid="selectFileInfoVo"/>
+        <where>
+            <if test="fileName != null and fileName != ''">
+                AND file_name like concat('%', #{fileName}, '%')
+            </if>
+            <if test="fileType != null and fileType != ''">
+                AND file_type = #{fileType}
+            </if>
+            <if test="storageProvider != null and storageProvider != ''">
+                AND storage_provider = #{storageProvider}
+            </if>
+            <if test="uploadUserId != null">
+                AND upload_user_id = #{uploadUserId}
+            </if>
+            <if test="uploadUserType != null and uploadUserType != ''">
+                AND upload_user_type = #{uploadUserType}
+            </if>
+            <if test="businessType != null and businessType != ''">
+                AND business_type = #{businessType}
+            </if>
+            <if test="businessId != null">
+                AND business_id = #{businessId}
+            </if>
+            <if test="status != null and status != ''">
+                AND status = #{status}
+            </if>
+            <if test="params.beginTime != null and params.beginTime != ''">
+                and date_format(create_time,'%Y%m%d') &gt;= date_format(#{params.beginTime},'%Y%m%d')
+            </if>
+            <if test="params.endTime != null and params.endTime != ''">
+                and date_format(create_time,'%Y%m%d') &lt;= date_format(#{params.endTime},'%Y%m%d')
+            </if>
+        </where>
+        order by create_time desc
+    </select>
+
+    <select id="selectFileInfoByBusiness" resultMap="SysFileInfoResult">
+        <include refid="selectFileInfoVo"/>
+        where business_type = #{businessType} and business_id = #{businessId} and status = '0'
+        order by create_time desc
+    </select>
+
+    <insert id="insertFileInfo" parameterType="SysFileInfo" useGeneratedKeys="true" keyProperty="fileId">
+        insert into sys_file_info (
+            <if test="fileName != null and fileName != ''">file_name,</if>
+            <if test="fileKey != null and fileKey != ''">file_key,</if>
+            <if test="fileUrl != null and fileUrl != ''">file_url,</if>
+            <if test="fileSize != null">file_size,</if>
+            <if test="fileType != null and fileType != ''">file_type,</if>
+            <if test="mimeType != null and mimeType != ''">mime_type,</if>
+            <if test="fileExt != null and fileExt != ''">file_ext,</if>
+            <if test="storageProvider != null and storageProvider != ''">storage_provider,</if>
+            <if test="bucketName != null and bucketName != ''">bucket_name,</if>
+            <if test="uploadUserId != null">upload_user_id,</if>
+            <if test="uploadUserType != null and uploadUserType != ''">upload_user_type,</if>
+            <if test="businessType != null and businessType != ''">business_type,</if>
+            <if test="businessId != null">business_id,</if>
+            <if test="status != null and status != ''">status,</if>
+            <if test="remark != null and remark != ''">remark,</if>
+            <if test="createBy != null and createBy != ''">create_by,</if>
+            create_time
+        ) values (
+            <if test="fileName != null and fileName != ''">#{fileName},</if>
+            <if test="fileKey != null and fileKey != ''">#{fileKey},</if>
+            <if test="fileUrl != null and fileUrl != ''">#{fileUrl},</if>
+            <if test="fileSize != null">#{fileSize},</if>
+            <if test="fileType != null and fileType != ''">#{fileType},</if>
+            <if test="mimeType != null and mimeType != ''">#{mimeType},</if>
+            <if test="fileExt != null and fileExt != ''">#{fileExt},</if>
+            <if test="storageProvider != null and storageProvider != ''">#{storageProvider},</if>
+            <if test="bucketName != null and bucketName != ''">#{bucketName},</if>
+            <if test="uploadUserId != null">#{uploadUserId},</if>
+            <if test="uploadUserType != null and uploadUserType != ''">#{uploadUserType},</if>
+            <if test="businessType != null and businessType != ''">#{businessType},</if>
+            <if test="businessId != null">#{businessId},</if>
+            <if test="status != null and status != ''">#{status},</if>
+            <if test="remark != null and remark != ''">#{remark},</if>
+            <if test="createBy != null and createBy != ''">#{createBy},</if>
+            sysdate()
+        )
+    </insert>
+
+    <update id="updateFileInfo" parameterType="SysFileInfo">
+        update sys_file_info
+        <set>
+            <if test="fileName != null and fileName != ''">file_name = #{fileName},</if>
+            <if test="fileKey != null and fileKey != ''">file_key = #{fileKey},</if>
+            <if test="fileUrl != null and fileUrl != ''">file_url = #{fileUrl},</if>
+            <if test="fileSize != null">file_size = #{fileSize},</if>
+            <if test="fileType != null and fileType != ''">file_type = #{fileType},</if>
+            <if test="mimeType != null and mimeType != ''">mime_type = #{mimeType},</if>
+            <if test="fileExt != null and fileExt != ''">file_ext = #{fileExt},</if>
+            <if test="businessType != null">business_type = #{businessType},</if>
+            <if test="businessId != null">business_id = #{businessId},</if>
+            <if test="status != null and status != ''">status = #{status},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="updateBy != null and updateBy != ''">update_by = #{updateBy},</if>
+            update_time = sysdate()
+        </set>
+        where file_id = #{fileId}
+    </update>
+
+    <delete id="deleteFileInfoById" parameterType="Long">
+        delete from sys_file_info where file_id = #{fileId}
+    </delete>
+
+    <delete id="deleteFileInfoByIds" parameterType="Long">
+        delete from sys_file_info where file_id in
+        <foreach item="fileId" collection="array" open="(" separator="," close=")">
+            #{fileId}
+        </foreach>
+    </delete>
+
+</mapper>

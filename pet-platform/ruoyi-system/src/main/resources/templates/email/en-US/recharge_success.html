@@ -1,0 +1,39 @@
+<div>
+    <h2>💰 Recharge Successful!</h2>
+    <p>Hello <strong>{{username}}</strong>,</p>
+    <p>Your recharge order has been completed successfully. Credits have been added to your account!</p>
+    <div class="info-box">
+        <p><strong>Order Details</strong></p>
+        <ul>
+            <li>Order No: <code>{{order_no}}</code></li>
+            <li>Credits Purchased: <strong>{{credits_amount}}</strong></li>
+            <li>Bonus Credits: <strong>{{bonus_credits}}</strong></li>
+            <li>Payment Amount: <strong>{{pay_amount}} {{pay_token}}</strong></li>
+            <li>Network: {{pay_network}}</li>
+            <li>Transaction Hash: <code style="font-size: 11px;">{{tx_hash}}</code></li>
+        </ul>
+    </div>
+    <h3>Balance Update</h3>
+    <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
+        <tr style="background: #f9f9f9;">
+            <td style="padding: 10px; border: 1px solid #ddd;">Previous Balance</td>
+            <td style="padding: 10px; border: 1px solid #ddd; text-align: right;">{{balance_before}} Credits</td>
+        </tr>
+        <tr style="background: #f0f7ff;">
+            <td style="padding: 10px; border: 1px solid #ddd;">Recharged</td>
+            <td style="padding: 10px; border: 1px solid #ddd; text-align: right; font-weight: bold; color: #667eea;">
+                +{{total_credits}} Credits
+            </td>
+        </tr>
+        <tr style="background: #f9f9f9;">
+            <td style="padding: 10px; border: 1px solid #ddd;"><strong>Current Balance</strong></td>
+            <td
+                style="padding: 10px; border: 1px solid #ddd; text-align: right; font-weight: bold; font-size: 18px; color: #28a745;">
+                {{current_balance}} Credits
+            </td>
+        </tr>
+    </table>
+    <a href="{{app_url}}/generate/create" class="button">Generate Video Now</a>
+    <p style="font-size: 12px; color: #666;">The transaction is permanently recorded on the blockchain. <a
+            href="{{explorer_url}}">View on explorer</a>.</p>
+</div>

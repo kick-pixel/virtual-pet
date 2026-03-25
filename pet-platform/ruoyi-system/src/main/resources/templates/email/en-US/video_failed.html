@@ -1,0 +1,22 @@
+<div>
+    <h2>❌ Video Generation Failed</h2>
+    <p>Hello <strong>{{username}}</strong>,</p>
+    <p>Unfortunately, your video generation task submitted at <strong>{{created_time}}</strong> has failed.</p>
+    <div class="warning-box">
+        <p><strong>Error Reason</strong></p>
+        <p>{{error_message}}</p>
+    </div>
+    <div class="info-box">
+        <p><strong>💰 Credits Refunded</strong></p>
+        <p>The frozen <strong>{{refunded_credits}} credits</strong> have been fully refunded to your account.</p>
+        <p>Current Balance: <strong>{{current_balance}} Credits</strong></p>
+    </div>
+    <h3>Suggested Actions:</h3>
+    <ul>
+        <li>Check if the uploaded image meets requirements (clarity, format, size)</li>
+        <li>Try lower resolution or shorter duration</li>
+        <li>Contact support if the issue persists</li>
+    </ul>
+    <a href="{{app_url}}/generate/create" class="button">Try Again</a>
+    <a href="{{support_url}}" class="button" style="background: #6c757d;">Contact Support</a>
+</div>

@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <!-- 日志存放路径 -->
+    <property name="log.path" value="logs" />
+    <!-- 日志输出格式（含完整日期，便于翻查历史日志） -->
+    <property name="log.pattern" value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - [%method,%line] - %msg%n" />
+    <!-- 控制台输出格式（带颜色） -->
+    <property name="console.pattern" value="%d{HH:mm:ss.SSS} %highlight(%-5level) %cyan(%logger{36}) - [%method,%line] - %msg%n" />
+
+    <!-- ======================== 控制台输出 ======================== -->
+    <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>${console.pattern}</pattern>
+        </encoder>
+    </appender>
+
+    <!-- ======================== 应用全量日志（INFO及以上） ======================== -->
+    <appender name="file_app" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${log.path}/app.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${log.path}/app.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <maxFileSize>50MB</maxFileSize>
+            <maxHistory>30</maxHistory>
+            <totalSizeCap>2GB</totalSizeCap>
+        </rollingPolicy>
+        <encoder>
+            <pattern>${log.pattern}</pattern>
+        </encoder>
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>INFO</level>
+        </filter>
+    </appender>
+
+    <!-- ======================== 错误日志（ERROR） ======================== -->
+    <appender name="file_error" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${log.path}/error.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${log.path}/error.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <maxFileSize>20MB</maxFileSize>
+            <maxHistory>30</maxHistory>
+            <totalSizeCap>500MB</totalSizeCap>
+        </rollingPolicy>
+        <encoder>
+            <pattern>${log.pattern}</pattern>
+        </encoder>
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>ERROR</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
+    </appender>
+
+    <!-- ======================== 定时任务日志（AI视频同步 + 区块链扫描） ======================== -->
+    <appender name="file_task" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${log.path}/task.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${log.path}/task.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <maxFileSize>50MB</maxFileSize>
+            <maxHistory>15</maxHistory>
+            <totalSizeCap>1GB</totalSizeCap>
+        </rollingPolicy>
+        <encoder>
+            <pattern>${log.pattern}</pattern>
+        </encoder>
+    </appender>
+
+    <!-- ======================== 用户访问日志 ======================== -->
+    <appender name="file_user" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${log.path}/user.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${log.path}/user.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <maxFileSize>20MB</maxFileSize>
+            <maxHistory>30</maxHistory>
+            <totalSizeCap>500MB</totalSizeCap>
+        </rollingPolicy>
+        <encoder>
+            <pattern>${log.pattern}</pattern>
+        </encoder>
+    </appender>
+
+    <!-- ======================== 日志级别控制 ======================== -->
+
+    <!-- 业务模块 -->
+    <logger name="com.ruoyi" level="info" />
+
+    <!-- 框架降噪 -->
+    <logger name="org.springframework" level="warn" />
+    <logger name="org.apache" level="warn" />
+    <logger name="org.redisson" level="warn" />
+    <logger name="io.netty" level="warn" />
+
+    <!-- 定时任务 + 视频队列日志：输出到独立文件，便于单独 tail 跟踪 -->
+    <logger name="com.ruoyi.ai.task" level="info" additivity="true">
+        <appender-ref ref="file_task" />
+    </logger>
+    <logger name="com.ruoyi.ai.queue" level="info" additivity="true">
+        <appender-ref ref="file_task" />
+    </logger>
+    <logger name="com.ruoyi.web3.task" level="info" additivity="true">
+        <appender-ref ref="file_task" />
+    </logger>
+    <logger name="com.ruoyi.framework.aspectj.DistributedLockAspect" level="info" additivity="true">
+        <appender-ref ref="file_task" />
+    </logger>
+
+    <!-- 用户操作日志 -->
+    <logger name="sys-user" level="info">
+        <appender-ref ref="file_user" />
+    </logger>
+
+    <!-- ======================== 根日志（唯一） ======================== -->
+    <root level="info">
+        <appender-ref ref="console" />
+        <appender-ref ref="file_app" />
+        <appender-ref ref="file_error" />
+    </root>
+
+</configuration>

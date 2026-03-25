@@ -1,0 +1,227 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.VirtualUserMapper">
+
+    <resultMap type="VirtualUser" id="VirtualUserResult">
+        <id     property="userId"           column="user_id"            />
+        <result property="username"         column="username"           />
+        <result property="email"            column="email"              />
+        <result property="emailVerified"    column="email_verified"     />
+        <result property="passwordHash"     column="password_hash"      />
+        <result property="avatarUrl"        column="avatar_url"         />
+        <result property="nickname"         column="nickname"           />
+        <result property="locale"           column="locale"             />
+        <result property="timezone"         column="timezone"           />
+        <result property="status"           column="status"             />
+        <result property="genDisabled"      column="gen_disabled"       />
+        <result property="consecutiveDays"  column="consecutive_days"   />
+        <result property="maxStreakDays"    column="max_streak_days"    />
+        <result property="loginAttempts"    column="login_attempts"     />
+        <result property="lockedUntil"      column="locked_until"       />
+        <result property="lastLoginTime"    column="last_login_time"    />
+        <result property="lastLoginIp"      column="last_login_ip"      />
+        <result property="lastLoginDevice"  column="last_login_device"  />
+        <result property="registerIp"       column="register_ip"        />
+        <result property="countryRegion"    column="country_region"     />
+        <result property="createTime"       column="create_time"        />
+        <result property="updateTime"       column="update_time"        />
+    </resultMap>
+
+    <resultMap type="VirtualUserAdminVO" id="VirtualUserAdminVOResult">
+        <result property="userId"         column="user_id"          />
+        <result property="email"          column="email"            />
+        <result property="nickname"       column="nickname"         />
+        <result property="telegramId"     column="telegram_id"      />
+        <result property="walletAddress"  column="wallet_address"   />
+        <result property="createTime"     column="create_time"      />
+        <result property="lastLoginTime"  column="last_login_time"  />
+        <result property="registerIp"     column="register_ip"      />
+        <result property="countryRegion"  column="country_region"   />
+        <result property="status"         column="status"           />
+        <result property="genDisabled"    column="gen_disabled"     />
+        <result property="totalGenCount"  column="total_gen_count"  />
+        <result property="failGenCount"   column="fail_gen_count"   />
+        <result property="totalEarned"    column="total_earned"     />
+        <result property="totalSpent"     column="total_spent"      />
+        <result property="balance"        column="balance"          />
+    </resultMap>
+
+    <sql id="selectVirtualUserVo">
+        select user_id, username, email, email_verified, password_hash, avatar_url, nickname,
+               locale, timezone, status, gen_disabled, consecutive_days, max_streak_days,
+               login_attempts, locked_until, last_login_time,
+               last_login_ip, last_login_device, register_ip, country_region,
+               create_time, update_time
+        from virtual_user
+    </sql>
+
+    <select id="selectVirtualUserById" parameterType="Long" resultMap="VirtualUserResult">
+        <include refid="selectVirtualUserVo"/>
+        where user_id = #{userId}
+    </select>
+
+    <select id="selectVirtualUserByUsername" parameterType="String" resultMap="VirtualUserResult">
+        <include refid="selectVirtualUserVo"/>
+        where username = #{username}
+    </select>
+
+    <select id="selectVirtualUserByEmail" parameterType="String" resultMap="VirtualUserResult">
+        <include refid="selectVirtualUserVo"/>
+        where email = #{email}
+    </select>
+
+    <select id="selectVirtualUserList" parameterType="VirtualUser" resultMap="VirtualUserResult">
+        <include refid="selectVirtualUserVo"/>
+        <where>
+            <if test="username != null and username != ''">AND username like concat('%', #{username}, '%')</if>
+            <if test="email != null and email != ''">AND email like concat('%', #{email}, '%')</if>
+            <if test="status != null">AND status = #{status}</if>
+            <if test="emailVerified != null">AND email_verified = #{emailVerified}</if>
+        </where>
+        order by create_time desc
+    </select>
+
+    <insert id="insertVirtualUser" parameterType="VirtualUser" useGeneratedKeys="true" keyProperty="userId">
+        insert into virtual_user (
+            <if test="username != null and username != ''">username,</if>
+            <if test="email != null and email != ''">email,</if>
+            <if test="emailVerified != null">email_verified,</if>
+            <if test="passwordHash != null and passwordHash != ''">password_hash,</if>
+            <if test="avatarUrl != null and avatarUrl != ''">avatar_url,</if>
+            <if test="nickname != null and nickname != ''">nickname,</if>
+            <if test="locale != null and locale != ''">locale,</if>
+            <if test="timezone != null and timezone != ''">timezone,</if>
+            <if test="status != null">status,</if>
+            create_time
+        ) values (
+            <if test="username != null and username != ''">#{username},</if>
+            <if test="email != null and email != ''">#{email},</if>
+            <if test="emailVerified != null">#{emailVerified},</if>
+            <if test="passwordHash != null and passwordHash != ''">#{passwordHash},</if>
+            <if test="avatarUrl != null and avatarUrl != ''">#{avatarUrl},</if>
+            <if test="nickname != null and nickname != ''">#{nickname},</if>
+            <if test="locale != null and locale != ''">#{locale},</if>
+            <if test="timezone != null and timezone != ''">#{timezone},</if>
+            <if test="status != null">#{status},</if>
+            sysdate()
+        )
+    </insert>
+
+    <update id="updateVirtualUser" parameterType="VirtualUser">
+        update virtual_user
+        <set>
+            <if test="email != null">email = #{email},</if>
+            <if test="emailVerified != null">email_verified = #{emailVerified},</if>
+            <if test="passwordHash != null">password_hash = #{passwordHash},</if>
+            <if test="avatarUrl != null">avatar_url = #{avatarUrl},</if>
+            <if test="nickname != null">nickname = #{nickname},</if>
+            <if test="locale != null">locale = #{locale},</if>
+            <if test="timezone != null">timezone = #{timezone},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="loginAttempts != null">login_attempts = #{loginAttempts},</if>
+            <if test="lockedUntil != null">locked_until = #{lockedUntil},</if>
+            update_time = sysdate()
+        </set>
+        where user_id = #{userId}
+    </update>
+
+    <update id="updateLoginSuccess" parameterType="VirtualUser">
+        update virtual_user
+        set last_login_time = sysdate(),
+            last_login_ip = #{lastLoginIp},
+            last_login_device = #{lastLoginDevice},
+            login_attempts = 0,
+            locked_until = null,
+            update_time = sysdate()
+        where user_id = #{userId}
+    </update>
+
+    <update id="updateLoginAttempts" parameterType="VirtualUser">
+        update virtual_user
+        set login_attempts = #{loginAttempts},
+            locked_until = #{lockedUntil},
+            update_time = sysdate()
+        where user_id = #{userId}
+    </update>
+
+    <delete id="deleteVirtualUserById" parameterType="Long">
+        delete from virtual_user where user_id = #{userId}
+    </delete>
+
+    <!-- ==================== 管理后台 SQL ==================== -->
+
+    <select id="selectAdminList" parameterType="VirtualUserAdminVO" resultMap="VirtualUserAdminVOResult">
+        SELECT
+          u.user_id,
+          u.email,
+          u.nickname,
+          u.telegram_id,
+          w.wallet_address,
+          u.create_time,
+          u.last_login_time,
+          u.register_ip,
+          u.country_region,
+          u.status,
+          u.gen_disabled,
+          COALESCE(s.total_gen_count, 0) AS total_gen_count,
+          COALESCE(s.fail_gen_count,  0) AS fail_gen_count,
+          COALESCE(c.total_earned,    0) AS total_earned,
+          COALESCE(c.total_spent,     0) AS total_spent,
+          COALESCE(c.balance,         0) AS balance
+        FROM virtual_user u
+        LEFT JOIN virtual_user_wallet  w ON w.user_id = u.user_id AND w.is_primary = 1
+        LEFT JOIN virtual_user_stats   s ON s.user_id = u.user_id
+        LEFT JOIN virtual_user_credits c ON c.user_id = u.user_id
+        <where>
+            <if test="userId != null">AND u.user_id = #{userId}</if>
+            <if test="email != null and email != ''">AND u.email LIKE CONCAT('%', #{email}, '%')</if>
+            <if test="walletAddress != null and walletAddress != ''">AND w.wallet_address LIKE CONCAT('%', #{walletAddress}, '%')</if>
+            <if test="status != null">AND u.status = #{status}</if>
+            <if test="genDisabled != null">AND u.gen_disabled = #{genDisabled}</if>
+            <if test="beginTime != null and beginTime != ''">AND u.create_time &gt;= #{beginTime}</if>
+            <if test="endTime != null and endTime != ''">AND u.create_time &lt;= #{endTime}</if>
+        </where>
+        ORDER BY u.create_time DESC
+    </select>
+
+    <update id="updateGenDisabled">
+        UPDATE virtual_user
+        SET gen_disabled = #{genDisabled},
+            update_time  = NOW()
+        WHERE user_id = #{userId}
+    </update>
+
+    <update id="updateStatus">
+        UPDATE virtual_user
+        SET status      = #{status},
+            update_time = NOW()
+        WHERE user_id = #{userId}
+    </update>
+
+    <update id="updateStreakDays">
+        UPDATE virtual_user
+        SET consecutive_days = #{consecutiveDays},
+            max_streak_days  = #{maxStreakDays},
+            update_time      = NOW()
+        WHERE user_id = #{userId}
+    </update>
+
+    <update id="updateRegisterIp">
+        UPDATE virtual_user
+        SET register_ip = #{registerIp},
+            update_time = NOW()
+        WHERE user_id = #{userId}
+          AND register_ip IS NULL
+    </update>
+
+    <update id="updateCountryRegion">
+        UPDATE virtual_user
+        SET country_region = #{countryRegion},
+            update_time    = NOW()
+        WHERE user_id = #{userId}
+          AND country_region IS NULL
+    </update>
+
+</mapper>

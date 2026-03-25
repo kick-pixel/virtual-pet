@@ -1,0 +1,22 @@
+<div>
+    <h2>❌ 视频生成失败</h2>
+    <p>您好 <strong>{{username}}</strong>，</p>
+    <p>很抱歉，您在 <strong>{{created_time}}</strong> 提交的视频生成任务失败了。</p>
+    <div class="warning-box">
+        <p><strong>失败原因</strong></p>
+        <p>{{error_message}}</p>
+    </div>
+    <div class="info-box">
+        <p><strong>💰 积分已退还</strong></p>
+        <p>冻结的 <strong>{{refunded_credits}} 积分</strong>已全额退还到您的账户。</p>
+        <p>当前积分余额：<strong>{{current_balance}} 积分</strong></p>
+    </div>
+    <h3>建议操作：</h3>
+    <ul>
+        <li>检查上传的图片是否符合要求（清晰度、格式、大小）</li>
+        <li>尝试选择较低的分辨率或较短的时长</li>
+        <li>如问题持续存在，请联系客服</li>
+    </ul>
+    <a href="{{app_url}}/generate/create" class="button">重新生成</a>
+    <a href="{{support_url}}" class="button" style="background: #6c757d;">联系客服</a>
+</div>

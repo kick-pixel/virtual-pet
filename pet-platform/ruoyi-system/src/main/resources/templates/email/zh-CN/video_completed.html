@@ -1,0 +1,19 @@
+<div>
+    <h2>✅ 您的视频已生成完成！</h2>
+    <p>您好 <strong>{{username}}</strong>，</p>
+    <p>您在 <strong>{{created_time}}</strong> 提交的视频生成任务已成功完成！</p>
+    <div class="info-box">
+        <p><strong>任务详情</strong></p>
+        <ul>
+            <li>任务编号：<code>{{task_id}}</code></li>
+            <li>视频时长：{{duration}}</li>
+            <li>分辨率：{{resolution}}</li>
+            <li>消耗积分：<strong>{{credits_cost}}</strong></li>
+        </ul>
+    </div>
+    <img src="{{video_thumbnail}}" alt="视频缩略图" style="max-width: 100%; border-radius: 8px; margin: 20px 0;" />
+    <a href="{{video_url}}" class="button">立即查看视频</a>
+    <a href="{{share_url}}" class="button" style="background: #28a745;">分享赚积分</a>
+    <p>💡 <strong>提示</strong>：将视频分享到 TikTok 或 Twitter 可获得 <strong>50 积分</strong>奖励！</p>
+    <p>当前积分余额：<strong>{{current_balance}} 积分</strong></p>
+</div>

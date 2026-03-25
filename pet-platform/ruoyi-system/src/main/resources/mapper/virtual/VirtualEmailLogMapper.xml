@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.VirtualEmailLogMapper">
+
+    <resultMap type="VirtualEmailLog" id="VirtualEmailLogResult">
+        <id     property="logId"           column="log_id"           />
+        <result property="userId"          column="user_id"          />
+        <result property="recipientEmail"  column="recipient_email"  />
+        <result property="templateType"    column="template_type"    />
+        <result property="subject"         column="subject"          />
+        <result property="templateVars"    column="template_vars"    />
+        <result property="status"          column="status"           />
+        <result property="errorMessage"    column="error_message"    />
+        <result property="sentAt"          column="sent_at"          />
+        <result property="retryCount"      column="retry_count"      />
+        <result property="maxRetries"      column="max_retries"      />
+        <result property="provider"        column="provider"         />
+        <result property="messageId"       column="message_id"       />
+        <result property="createTime"      column="create_time"      />
+        <result property="updateTime"      column="update_time"      />
+    </resultMap>
+
+    <sql id="selectVo">
+        select log_id, user_id, recipient_email, template_type, subject, template_vars,
+               status, error_message, sent_at, retry_count, max_retries, provider, message_id,
+               create_time, update_time
+        from virtual_email_log
+    </sql>
+
+    <select id="selectByLogId" parameterType="Long" resultMap="VirtualEmailLogResult">
+        <include refid="selectVo"/> where log_id = #{logId}
+    </select>
+
+    <select id="selectByUserId" parameterType="Long" resultMap="VirtualEmailLogResult">
+        <include refid="selectVo"/> where user_id = #{userId} order by create_time desc
+    </select>
+
+    <select id="selectVirtualEmailLogList" parameterType="VirtualEmailLog" resultMap="VirtualEmailLogResult">
+        <include refid="selectVo"/>
+        <where>
+            <if test="userId != null">AND user_id = #{userId}</if>
+            <if test="recipientEmail != null and recipientEmail != ''">AND recipient_email = #{recipientEmail}</if>
+            <if test="templateType != null and templateType != ''">AND template_type = #{templateType}</if>
+            <if test="status != null and status != ''">AND status = #{status}</if>
+        </where>
+        order by create_time desc
+    </select>
+
+    <insert id="insertVirtualEmailLog" parameterType="VirtualEmailLog" useGeneratedKeys="true" keyProperty="logId">
+        insert into virtual_email_log (user_id, recipient_email, template_type, subject,
+            template_vars, status, provider, create_time)
+        values (#{userId}, #{recipientEmail}, #{templateType}, #{subject},
+            #{templateVars}, #{status}, #{provider}, sysdate())
+    </insert>
+
+    <update id="updateVirtualEmailLog" parameterType="VirtualEmailLog">
+        update virtual_email_log
+        <set>
+            <if test="status != null">status = #{status},</if>
+            <if test="errorMessage != null">error_message = #{errorMessage},</if>
+            <if test="sentAt != null">sent_at = #{sentAt},</if>
+            <if test="retryCount != null">retry_count = #{retryCount},</if>
+            <if test="messageId != null">message_id = #{messageId},</if>
+            update_time = sysdate()
+        </set>
+        where log_id = #{logId}
+    </update>
+
+</mapper>

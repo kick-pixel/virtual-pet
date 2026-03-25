@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.AiModelConfigMapper">
+
+    <resultMap type="AiModelConfig" id="AiModelConfigResult">
+        <id     property="modelId"              column="model_id"               />
+        <result property="provider"             column="provider"               />
+        <result property="modelName"            column="model_name"             />
+        <result property="modelDisplayName"     column="model_display_name"     />
+        <result property="modelType"            column="model_type"             />
+        <result property="apiEndpoint"          column="api_endpoint"           />
+        <result property="pricePerSecond"       column="price_per_second"       />
+        <result property="maxDuration"          column="max_duration"           />
+        <result property="supportedResolutions" column="supported_resolutions"  />
+        <result property="status"               column="status"                 />
+        <result property="sortOrder"            column="sort_order"             />
+        <result property="remark"               column="remark"                 />
+        <result property="createBy"             column="create_by"              />
+        <result property="createTime"           column="create_time"            />
+        <result property="updateBy"             column="update_by"              />
+        <result property="updateTime"           column="update_time"            />
+    </resultMap>
+
+    <sql id="selectModelConfigVo">
+        select model_id, provider, model_name, model_display_name, model_type, api_endpoint,
+               price_per_second, max_duration, supported_resolutions, status, sort_order,
+               remark, create_by, create_time, update_by, update_time
+        from ai_model_config
+    </sql>
+
+    <select id="selectModelConfigById" parameterType="Long" resultMap="AiModelConfigResult">
+        <include refid="selectModelConfigVo"/>
+        where model_id = #{modelId}
+    </select>
+
+    <select id="selectModelConfigByProviderAndName" resultMap="AiModelConfigResult">
+        <include refid="selectModelConfigVo"/>
+        where provider = #{provider} and model_name = #{modelName}
+    </select>
+
+    <select id="selectModelConfigList" parameterType="AiModelConfig" resultMap="AiModelConfigResult">
+        <include refid="selectModelConfigVo"/>
+        <where>
+            <if test="provider != null and provider != ''">
+                AND provider = #{provider}
+            </if>
+            <if test="modelName != null and modelName != ''">
+                AND model_name like concat('%', #{modelName}, '%')
+            </if>
+            <if test="modelDisplayName != null and modelDisplayName != ''">
+                AND model_display_name like concat('%', #{modelDisplayName}, '%')
+            </if>
+            <if test="modelType != null and modelType != ''">
+                AND model_type = #{modelType}
+            </if>
+            <if test="status != null and status != ''">
+                AND status = #{status}
+            </if>
+        </where>
+        order by sort_order, model_id
+    </select>
+
+    <select id="selectModelConfigByProvider" parameterType="String" resultMap="AiModelConfigResult">
+        <include refid="selectModelConfigVo"/>
+        where provider = #{provider} and status = '1'
+        order by sort_order, model_id
+    </select>
+
+    <select id="selectEnabledModelConfigList" resultMap="AiModelConfigResult">
+        <include refid="selectModelConfigVo"/>
+        where status = '1'
+        order by sort_order, model_id
+    </select>
+
+    <select id="selectModelConfigByType" parameterType="String" resultMap="AiModelConfigResult">
+        <include refid="selectModelConfigVo"/>
+        where model_type = #{modelType} and status = '1'
+        order by sort_order, model_id
+    </select>
+
+    <insert id="insertModelConfig" parameterType="AiModelConfig" useGeneratedKeys="true" keyProperty="modelId">
+        insert into ai_model_config (
+            <if test="provider != null and provider != ''">provider,</if>
+            <if test="modelName != null and modelName != ''">model_name,</if>
+            <if test="modelDisplayName != null and modelDisplayName != ''">model_display_name,</if>
+            <if test="modelType != null and modelType != ''">model_type,</if>
+            <if test="apiEndpoint != null">api_endpoint,</if>
+            <if test="pricePerSecond != null">price_per_second,</if>
+            <if test="maxDuration != null">max_duration,</if>
+            <if test="supportedResolutions != null">supported_resolutions,</if>
+            <if test="status != null and status != ''">status,</if>
+            <if test="sortOrder != null">sort_order,</if>
+            <if test="remark != null and remark != ''">remark,</if>
+            <if test="createBy != null and createBy != ''">create_by,</if>
+            create_time
+        ) values (
+            <if test="provider != null and provider != ''">#{provider},</if>
+            <if test="modelName != null and modelName != ''">#{modelName},</if>
+            <if test="modelDisplayName != null and modelDisplayName != ''">#{modelDisplayName},</if>
+            <if test="modelType != null and modelType != ''">#{modelType},</if>
+            <if test="apiEndpoint != null">#{apiEndpoint},</if>
+            <if test="pricePerSecond != null">#{pricePerSecond},</if>
+            <if test="maxDuration != null">#{maxDuration},</if>
+            <if test="supportedResolutions != null">#{supportedResolutions},</if>
+            <if test="status != null and status != ''">#{status},</if>
+            <if test="sortOrder != null">#{sortOrder},</if>
+            <if test="remark != null and remark != ''">#{remark},</if>
+            <if test="createBy != null and createBy != ''">#{createBy},</if>
+            sysdate()
+        )
+    </insert>
+
+    <update id="updateModelConfig" parameterType="AiModelConfig">
+        update ai_model_config
+        <set>
+            <if test="provider != null and provider != ''">provider = #{provider},</if>
+            <if test="modelName != null and modelName != ''">model_name = #{modelName},</if>
+            <if test="modelDisplayName != null and modelDisplayName != ''">model_display_name = #{modelDisplayName},</if>
+            <if test="modelType != null and modelType != ''">model_type = #{modelType},</if>
+            <if test="apiEndpoint != null">api_endpoint = #{apiEndpoint},</if>
+            <if test="pricePerSecond != null">price_per_second = #{pricePerSecond},</if>
+            <if test="maxDuration != null">max_duration = #{maxDuration},</if>
+            <if test="supportedResolutions != null">supported_resolutions = #{supportedResolutions},</if>
+            <if test="status != null and status != ''">status = #{status},</if>
+            <if test="sortOrder != null">sort_order = #{sortOrder},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="updateBy != null and updateBy != ''">update_by = #{updateBy},</if>
+            update_time = sysdate()
+        </set>
+        where model_id = #{modelId}
+    </update>
+
+    <delete id="deleteModelConfigById" parameterType="Long">
+        delete from ai_model_config where model_id = #{modelId}
+    </delete>
+
+    <delete id="deleteModelConfigByIds" parameterType="Long">
+        delete from ai_model_config where model_id in
+        <foreach item="modelId" collection="array" open="(" separator="," close=")">
+            #{modelId}
+        </foreach>
+    </delete>
+
+</mapper>

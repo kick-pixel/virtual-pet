@@ -1,0 +1,19 @@
+<div>
+    <h2>✅ Your Video is Ready!</h2>
+    <p>Hello <strong>{{username}}</strong>,</p>
+    <p>Your video generation task submitted at <strong>{{created_time}}</strong> has been completed successfully!</p>
+    <div class="info-box">
+        <p><strong>Task Details</strong></p>
+        <ul>
+            <li>Task ID: <code>{{task_id}}</code></li>
+            <li>Duration: {{duration}}</li>
+            <li>Resolution: {{resolution}}</li>
+            <li>Credits Used: <strong>{{credits_cost}}</strong></li>
+        </ul>
+    </div>
+    <img src="{{video_thumbnail}}" alt="Video Thumbnail" style="max-width: 100%; border-radius: 8px; margin: 20px 0;" />
+    <a href="{{video_url}}" class="button">Watch Video</a>
+    <a href="{{share_url}}" class="button" style="background: #28a745;">Share & Earn</a>
+    <p>💡 <strong>Tip</strong>: Share to TikTok or Twitter to earn <strong>50 credits</strong> reward!</p>
+    <p>Current Balance: <strong>{{current_balance}} Credits</strong></p>
+</div>

@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.VirtualTelegramBindingMapper">
+
+    <resultMap type="VirtualTelegramBinding" id="VirtualTelegramBindingResult">
+        <id     property="id"                column="id"                 />
+        <result property="userId"            column="user_id"            />
+        <result property="telegramUserId"    column="telegram_user_id"   />
+        <result property="telegramUsername"  column="telegram_username"  />
+        <result property="telegramChatId"    column="telegram_chat_id"   />
+        <result property="bindCode"          column="bind_code"          />
+        <result property="bindCodeExpire"    column="bind_code_expire"   />
+        <result property="botState"          column="bot_state"          />
+        <result property="botStateData"      column="bot_state_data"     />
+        <result property="status"            column="status"             />
+        <result property="createTime"        column="create_time"        />
+        <result property="updateTime"        column="update_time"        />
+    </resultMap>
+
+    <sql id="selectVo">
+        select id, user_id, telegram_user_id, telegram_username, telegram_chat_id,
+               bind_code, bind_code_expire, bot_state, bot_state_data, status, create_time, update_time
+        from virtual_telegram_binding
+    </sql>
+
+    <select id="selectById" parameterType="Long" resultMap="VirtualTelegramBindingResult">
+        <include refid="selectVo"/> where id = #{id}
+    </select>
+
+    <select id="selectByTelegramUserId" parameterType="Long" resultMap="VirtualTelegramBindingResult">
+        <include refid="selectVo"/> where telegram_user_id = #{telegramUserId}
+    </select>
+
+    <select id="selectByUserId" parameterType="Long" resultMap="VirtualTelegramBindingResult">
+        <include refid="selectVo"/> where user_id = #{userId} and status = 1
+    </select>
+
+    <select id="selectByBindCode" parameterType="String" resultMap="VirtualTelegramBindingResult">
+        <include refid="selectVo"/> where bind_code = #{bindCode} and bind_code_expire &gt; now()
+    </select>
+
+    <select id="selectVirtualTelegramBindingList" parameterType="VirtualTelegramBinding" resultMap="VirtualTelegramBindingResult">
+        <include refid="selectVo"/>
+        <where>
+            <if test="userId != null">AND user_id = #{userId}</if>
+            <if test="status != null">AND status = #{status}</if>
+        </where>
+    </select>
+
+    <insert id="insertVirtualTelegramBinding" parameterType="VirtualTelegramBinding" useGeneratedKeys="true" keyProperty="id">
+        insert into virtual_telegram_binding (user_id, telegram_user_id, telegram_username,
+            telegram_chat_id, bind_code, bind_code_expire, bot_state, status, create_time)
+        values (#{userId}, #{telegramUserId}, #{telegramUsername},
+            #{telegramChatId}, #{bindCode}, #{bindCodeExpire}, #{botState}, #{status}, sysdate())
+    </insert>
+
+    <update id="updateVirtualTelegramBinding" parameterType="VirtualTelegramBinding">
+        update virtual_telegram_binding
+        <set>
+            <if test="userId != null">user_id = #{userId},</if>
+            <if test="bindCode != null">bind_code = #{bindCode},</if>
+            <if test="bindCodeExpire != null">bind_code_expire = #{bindCodeExpire},</if>
+            <if test="botState != null">bot_state = #{botState},</if>
+            <if test="botStateData != null">bot_state_data = #{botStateData},</if>
+            <if test="status != null">status = #{status},</if>
+            update_time = sysdate()
+        </set>
+        where id = #{id}
+    </update>
+
+</mapper>

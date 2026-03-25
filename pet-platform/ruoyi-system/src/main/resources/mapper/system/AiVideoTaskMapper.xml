@@ -1,0 +1,262 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.AiVideoTaskMapper">
+
+    <resultMap type="AiVideoTask" id="AiVideoTaskResult">
+        <id     property="taskId"             column="task_id"               />
+        <result property="taskUuid"           column="task_uuid"             />
+        <result property="provider"           column="provider"              />
+        <result property="providerTaskId"     column="provider_task_id"      />
+        <result property="userId"             column="user_id"               />
+        <result property="promptText"         column="prompt_text"           />
+        <result property="promptImageUrl"     column="prompt_image_url"      />
+        <result property="promptImageFileId"  column="prompt_image_file_id"  />
+        <result property="modelName"          column="model_name"            />
+        <result property="videoDuration"      column="video_duration"        />
+        <result property="videoResolution"    column="video_resolution"      />
+        <result property="videoAspectRatio"   column="video_aspect_ratio"    />
+        <result property="status"             column="status"                />
+        <result property="progress"           column="progress"              />
+        <result property="providerVideoUrl"   column="provider_video_url"    />
+        <result property="ossVideoUrl"        column="oss_video_url"         />
+        <result property="fileId"             column="file_id"               />
+        <result property="videoPicFileId"    column="video_pic_file_id"     />
+        <result property="videoPicUrl"       column="video_pic_url"         />
+        <result property="errorCode"          column="error_code"            />
+        <result property="errorMessage"       column="error_message"         />
+        <result property="retryCount"         column="retry_count"           />
+        <result property="maxRetry"           column="max_retry"             />
+        <result property="estimatedTime"      column="estimated_time"        />
+        <result property="costAmount"         column="cost_amount"           />
+        <result property="startedAt"          column="started_at"            />
+        <result property="completedAt"        column="completed_at"          />
+        <result property="likeCount"          column="like_count"            />
+        <result property="viewCount"          column="view_count"            />
+        <result property="adminStatus"        column="admin_status"          />
+        <result property="remark"             column="remark"                />
+        <result property="createBy"           column="create_by"             />
+        <result property="createTime"         column="create_time"           />
+        <result property="updateBy"           column="update_by"             />
+        <result property="updateTime"         column="update_time"           />
+    </resultMap>
+
+    <sql id="selectVideoTaskVo">
+        select task_id, task_uuid, provider, provider_task_id, user_id, prompt_text, prompt_image_url,
+               prompt_image_file_id, model_name, video_duration, video_resolution, video_aspect_ratio,
+               status, progress, provider_video_url, oss_video_url, file_id, video_pic_file_id,
+               video_pic_url, error_code, error_message,
+               retry_count, max_retry, estimated_time, cost_amount, started_at, completed_at,
+               like_count, view_count, admin_status, remark, create_by, create_time, update_by, update_time
+        from ai_video_task
+    </sql>
+
+    <select id="selectVideoTaskById" parameterType="Long" resultMap="AiVideoTaskResult">
+        <include refid="selectVideoTaskVo"/>
+        where task_id = #{taskId}
+    </select>
+
+    <select id="selectVideoTaskByUuid" parameterType="String" resultMap="AiVideoTaskResult">
+        <include refid="selectVideoTaskVo"/>
+        where task_uuid = #{taskUuid}
+    </select>
+
+    <select id="selectVideoTaskByProviderTaskId" parameterType="String" resultMap="AiVideoTaskResult">
+        <include refid="selectVideoTaskVo"/>
+        where provider_task_id = #{providerTaskId}
+    </select>
+
+    <select id="selectVideoTaskList" parameterType="AiVideoTask" resultMap="AiVideoTaskResult">
+        <include refid="selectVideoTaskVo"/>
+        <where>
+            <if test="taskUuid != null and taskUuid != ''">
+                AND task_uuid = #{taskUuid}
+            </if>
+            <if test="provider != null and provider != ''">
+                AND provider = #{provider}
+            </if>
+            <if test="userId != null">
+                AND user_id = #{userId}
+            </if>
+            <if test="modelName != null and modelName != ''">
+                AND model_name = #{modelName}
+            </if>
+            <if test="status != null and status != ''">
+                AND status = #{status}
+            </if>
+            <if test="adminStatus != null">
+                AND admin_status = #{adminStatus}
+            </if>
+            <if test="params != null and params.beginTime != null and params.beginTime != ''">
+                and date_format(create_time,'%Y%m%d') &gt;= date_format(#{params.beginTime},'%Y%m%d')
+            </if>
+            <if test="params != null and params.endTime != null and params.endTime != ''">
+                and date_format(create_time,'%Y%m%d') &lt;= date_format(#{params.endTime},'%Y%m%d')
+            </if>
+        </where>
+        order by task_id desc, create_time desc
+    </select>
+
+    <select id="selectProcessingVideoTasks" resultMap="AiVideoTaskResult">
+        <include refid="selectVideoTaskVo"/>
+        where status = 'processing'
+        and (oss_video_url is null or oss_video_url = '')
+        order by create_time
+    </select>
+
+    <select id="selectPendingVideoTasks" resultMap="AiVideoTaskResult">
+        <include refid="selectVideoTaskVo"/>
+        where status = 'pending'
+        order by create_time
+    </select>
+
+    <select id="selectVideoTaskByUserId" parameterType="Long" resultMap="AiVideoTaskResult">
+        <include refid="selectVideoTaskVo"/>
+        where user_id = #{userId}
+        order by create_time desc
+    </select>
+
+    <insert id="insertVideoTask" parameterType="AiVideoTask" useGeneratedKeys="true" keyProperty="taskId">
+        insert into ai_video_task (
+            <if test="taskUuid != null and taskUuid != ''">task_uuid,</if>
+            <if test="provider != null and provider != ''">provider,</if>
+            <if test="providerTaskId != null and providerTaskId != ''">provider_task_id,</if>
+            <if test="userId != null">user_id,</if>
+            <if test="promptText != null">prompt_text,</if>
+            <if test="promptImageUrl != null">prompt_image_url,</if>
+            <if test="promptImageFileId != null">prompt_image_file_id,</if>
+            <if test="modelName != null and modelName != ''">model_name,</if>
+            <if test="videoDuration != null">video_duration,</if>
+            <if test="videoResolution != null and videoResolution != ''">video_resolution,</if>
+            <if test="videoAspectRatio != null and videoAspectRatio != ''">video_aspect_ratio,</if>
+            <if test="status != null and status != ''">status,</if>
+            <if test="progress != null">progress,</if>
+            <if test="maxRetry != null">max_retry,</if>
+            <if test="estimatedTime != null">estimated_time,</if>
+            <if test="remark != null and remark != ''">remark,</if>
+            <if test="createBy != null and createBy != ''">create_by,</if>
+            create_time
+        ) values (
+            <if test="taskUuid != null and taskUuid != ''">#{taskUuid},</if>
+            <if test="provider != null and provider != ''">#{provider},</if>
+            <if test="providerTaskId != null and providerTaskId != ''">#{providerTaskId},</if>
+            <if test="userId != null">#{userId},</if>
+            <if test="promptText != null">#{promptText},</if>
+            <if test="promptImageUrl != null">#{promptImageUrl},</if>
+            <if test="promptImageFileId != null">#{promptImageFileId},</if>
+            <if test="modelName != null and modelName != ''">#{modelName},</if>
+            <if test="videoDuration != null">#{videoDuration},</if>
+            <if test="videoResolution != null and videoResolution != ''">#{videoResolution},</if>
+            <if test="videoAspectRatio != null and videoAspectRatio != ''">#{videoAspectRatio},</if>
+            <if test="status != null and status != ''">#{status},</if>
+            <if test="progress != null">#{progress},</if>
+            <if test="maxRetry != null">#{maxRetry},</if>
+            <if test="estimatedTime != null">#{estimatedTime},</if>
+            <if test="remark != null and remark != ''">#{remark},</if>
+            <if test="createBy != null and createBy != ''">#{createBy},</if>
+            sysdate()
+        )
+    </insert>
+
+    <update id="updateVideoTask" parameterType="AiVideoTask">
+        update ai_video_task
+        <set>
+            <if test="providerTaskId != null">provider_task_id = #{providerTaskId},</if>
+            <if test="status != null and status != ''">status = #{status},</if>
+            <if test="progress != null">progress = #{progress},</if>
+            <if test="providerVideoUrl != null">provider_video_url = #{providerVideoUrl},</if>
+            <if test="ossVideoUrl != null">oss_video_url = #{ossVideoUrl},</if>
+            <if test="fileId != null">file_id = #{fileId},</if>
+            <if test="videoPicFileId != null">video_pic_file_id = #{videoPicFileId},</if>
+            <if test="videoPicUrl != null">video_pic_url = #{videoPicUrl},</if>
+            <if test="errorCode != null">error_code = #{errorCode},</if>
+            <if test="errorMessage != null">error_message = #{errorMessage},</if>
+            <if test="retryCount != null">retry_count = #{retryCount},</if>
+            <if test="costAmount != null">cost_amount = #{costAmount},</if>
+            <if test="startedAt != null">started_at = #{startedAt},</if>
+            <if test="completedAt != null">completed_at = #{completedAt},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="updateBy != null and updateBy != ''">update_by = #{updateBy},</if>
+            update_time = sysdate()
+        </set>
+        where task_id = #{taskId}
+    </update>
+
+    <update id="updateVideoTaskStatus">
+        update ai_video_task
+        set status = #{status}, progress = #{progress}, update_time = sysdate()
+        where task_id = #{taskId}
+    </update>
+
+    <update id="updateVideoTaskError">
+        update ai_video_task
+        set error_code = #{errorCode}, error_message = #{errorMessage}, status = 'failed', update_time = sysdate()
+        where task_id = #{taskId}
+    </update>
+
+    <update id="incrementRetryCount" parameterType="Long">
+        update ai_video_task
+        set retry_count = retry_count + 1, update_time = sysdate()
+        where task_id = #{taskId}
+    </update>
+
+    <update id="incrementLikeCount" parameterType="Long">
+        update ai_video_task set like_count = like_count + 1 WHERE task_id = #{taskId}
+    </update>
+
+    <update id="decrementLikeCount" parameterType="Long">
+        update ai_video_task set like_count = GREATEST(like_count - 1, 0) WHERE task_id = #{taskId}
+    </update>
+
+    <delete id="deleteVideoTaskById" parameterType="Long">
+        delete from ai_video_task where task_id = #{taskId}
+    </delete>
+
+    <delete id="deleteVideoTaskByIds" parameterType="Long">
+        delete from ai_video_task where task_id in
+        <foreach item="taskId" collection="array" open="(" separator="," close=")">
+            #{taskId}
+        </foreach>
+    </delete>
+
+    <!-- ==================== 管理后台 SQL ==================== -->
+
+    <!-- 新增 view_count / admin_status 到 resultMap -->
+    <resultMap type="AiVideoTask" id="AiVideoTaskAdminResult" extends="AiVideoTaskResult">
+        <result property="viewCount"    column="view_count"    />
+        <result property="adminStatus"  column="admin_status"  />
+        <result property="virtualUserId" column="virtual_user_id" />
+    </resultMap>
+
+    <select id="selectAdminVideoList" parameterType="AiVideoTask" resultMap="AiVideoTaskAdminResult">
+        <include refid="selectVideoTaskVo"/>
+        <where>
+            <if test="virtualUserId != null">AND user_id = #{virtualUserId}</if>
+            <if test="status != null and status != ''">AND status = #{status}</if>
+            <if test="adminStatus != null">AND admin_status = #{adminStatus}</if>
+            <if test="params != null and params.beginTime != null and params.beginTime != ''">
+                AND create_time &gt;= #{params.beginTime}
+            </if>
+            <if test="params != null and params.endTime != null and params.endTime != ''">
+                AND create_time &lt;= #{params.endTime}
+            </if>
+        </where>
+        ORDER BY task_id DESC
+    </select>
+
+    <update id="updateAdminStatus">
+        UPDATE ai_video_task
+        SET admin_status = #{adminStatus},
+            update_time  = NOW()
+        WHERE task_id = #{taskId}
+    </update>
+
+    <update id="incrementViewCount">
+        UPDATE ai_video_task
+        SET view_count  = view_count + #{delta},
+            update_time = NOW()
+        WHERE task_id = #{taskId}
+    </update>
+
+</mapper>

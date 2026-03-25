@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.VirtualCreditsRuleMapper">
+
+    <resultMap type="VirtualCreditsRule" id="VirtualCreditsRuleResult">
+        <id     property="ruleId"           column="rule_id"           />
+        <result property="ruleCode"         column="rule_code"         />
+        <result property="ruleName"         column="rule_name"         />
+        <result property="ruleType"         column="rule_type"         />
+        <result property="baseCredits"      column="base_credits"      />
+        <result property="perSecond"        column="per_second"        />
+        <result property="resolutionRate"   column="resolution_rate"   />
+        <result property="rewardCredits"    column="reward_credits"    />
+        <result property="rewardCondition"  column="reward_condition"  />
+        <result property="description"      column="description"       />
+        <result property="status"           column="status"            />
+        <result property="createTime"       column="create_time"       />
+        <result property="updateTime"       column="update_time"       />
+    </resultMap>
+
+    <sql id="selectVo">
+        select rule_id, rule_code, rule_name, rule_type, base_credits, per_second, resolution_rate,
+               reward_credits, reward_condition, description, status, create_time, update_time
+        from virtual_credits_rule
+    </sql>
+
+    <select id="selectByRuleId" parameterType="Long" resultMap="VirtualCreditsRuleResult">
+        <include refid="selectVo"/> where rule_id = #{ruleId}
+    </select>
+
+    <select id="selectByRuleCode" parameterType="String" resultMap="VirtualCreditsRuleResult">
+        <include refid="selectVo"/> where rule_code = #{ruleCode}
+    </select>
+
+    <select id="selectVirtualCreditsRuleList" parameterType="VirtualCreditsRule" resultMap="VirtualCreditsRuleResult">
+        <include refid="selectVo"/>
+        <where>
+            <if test="ruleType != null and ruleType != ''">AND rule_type = #{ruleType}</if>
+            <if test="status != null">AND status = #{status}</if>
+        </where>
+    </select>
+
+    <select id="selectActiveRules" resultMap="VirtualCreditsRuleResult">
+        <include refid="selectVo"/> where status = 1
+    </select>
+
+    <insert id="insertVirtualCreditsRule" parameterType="VirtualCreditsRule" useGeneratedKeys="true" keyProperty="ruleId">
+        insert into virtual_credits_rule (rule_code, rule_name, rule_type, base_credits, per_second,
+            resolution_rate, reward_credits, reward_condition, description, status, create_time)
+        values (#{ruleCode}, #{ruleName}, #{ruleType}, #{baseCredits}, #{perSecond},
+            #{resolutionRate}, #{rewardCredits}, #{rewardCondition}, #{description}, #{status}, sysdate())
+    </insert>
+
+    <update id="updateVirtualCreditsRule" parameterType="VirtualCreditsRule">
+        update virtual_credits_rule
+        <set>
+            <if test="ruleName != null">rule_name = #{ruleName},</if>
+            <if test="baseCredits != null">base_credits = #{baseCredits},</if>
+            <if test="perSecond != null">per_second = #{perSecond},</if>
+            <if test="resolutionRate != null">resolution_rate = #{resolutionRate},</if>
+            <if test="rewardCredits != null">reward_credits = #{rewardCredits},</if>
+            <if test="rewardCondition != null">reward_condition = #{rewardCondition},</if>
+            <if test="description != null">description = #{description},</if>
+            <if test="status != null">status = #{status},</if>
+            update_time = sysdate()
+        </set>
+        where rule_id = #{ruleId}
+    </update>
+
+</mapper>

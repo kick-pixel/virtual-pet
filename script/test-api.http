@@ -1,0 +1,728 @@
+###############################################################################
+# PEI AI Platform - 测试接口集合
+#
+# 使用说明：
+# 1. 在VS Code中安装REST Client扩展
+# 2. 先执行登录接口获取token
+# 3. 将token更新到@token变量
+# 4. 按顺序测试各个接口
+#
+# 创建日期：2026-02-07
+###############################################################################
+
+# ============================================================================
+# 全局变量配置
+# ============================================================================
+@baseUrl = http://localhost:8181
+@token = Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbiIsImxvZ2luX3VzZXJfa2V5IjoiNDUxZjdlOWQtNjlmYi00NWQzLTllNzAtYTI5ODg0M2ZhNWNjIn0.ADr5OJ3c4HK83UpSzv1-hwQDy2CstDFT6FisBW1ccZUtZnZRQJ8ZtCdyH1ltBrMqZ86q5hadgKmMTZD3DuB-uw
+
+@contentType = application/json
+
+# ============================================================================
+# AI 视频生成提供商切换说明
+# ============================================================================
+# 系统支持两个视频生成提供商，通过 "provider" 参数切换：
+#
+# 1. OpenAI Sora (provider: "openai")
+#    - 模型：sora-2
+#    - 参数：prompt, imageUrl, model, duration, resolution, aspectRatio
+#
+# 2. 火山引擎 Seedance (provider: "ark")
+#    - 模型：doubao-seedance-1-5-pro-251215（推荐）, doubao-seedance-1-0-pro-250528 等
+#    - 参数：prompt, imageUrl, model, duration, ratio, generateAudio, watermark,
+#            endFrameImageUrl, referenceImageUrls
+#    - 特色功能：音画同生、首尾帧生视频、多参考图生视频
+#
+# 如果不指定 provider，系统会使用第一个可用的提供商
+# ============================================================================
+
+###############################################################################
+# 0. 系统接口 - 登录认证
+###############################################################################
+
+### 0.1 用户登录（获取Token）
+POST {{baseUrl}}/login
+Content-Type: {{contentType}}
+
+{
+  "username": "admin",
+  "password": "admin123"
+}
+
+###############################################################################
+# 1. 文件管理测试接口 (/test/file)
+###############################################################################
+
+### 1.1 测试存储服务健康检查
+GET {{baseUrl}}/test/file/health
+Authorization: Bearer {{token}}
+
+### 1.2 测试文件上传（单文件）
+# 注意：请修改为实际的图片文件路径
+# 语法：< 后面跟文件的绝对路径或相对路径
+POST {{baseUrl}}/test/file/upload
+Authorization: Bearer {{token}}
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="file"; filename="test.mp4"
+Content-Type: video/mp4
+
+< E:/pet-web3/0de712b72d46eaeac48dcba60cb2042e.mp4
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="folder"
+
+test
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+# 使用示例（需要修改为实际路径）：
+# Windows: < C:/Users/YourName/Pictures/dog.jpg
+# 相对路径: < ./test-images/dog.jpg
+
+# {
+#   "msg": "文件上传成功",
+#   "code": 200,
+#   "data": {
+#     "fileId": 103,
+#     "fileName": "test.jpg",
+#     "fileKey": "test/2026/02/08/29f5124bb4064e1e8e81ed5efbc33f96.jpg",
+#     "fileUrl": "https://aidog.ffd8cb4a1f2ff512d2b986f96266ba0e.r2.cloudflarestorage.com/test/2026/02/08/29f5124bb4064e1e8e81ed5efbc33f96.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20260208T091219Z&X-Amz-SignedHeaders=host&X-Amz-Expires=86400&X-Amz-Credential=3cf920ef4e73c93bab0375a9a6f1f97b%2F20260208%2Fauto%2Fs3%2Faws4_request&X-Amz-Signature=b04c4171398af38dc7bfbad90d6e0d1f720f2e82184406a03e06cef8a8427091",
+#     "fileSize": 158473,
+#     "fileType": "image",
+#     "mimeType": "image/jpeg",
+#     "fileExt": "jpg"
+#   }
+# }
+
+### 1.3 获取文件信息
+GET {{baseUrl}}/test/file/info/103
+Authorization: Bearer {{token}}
+
+# result:
+# {
+#   "msg": "获取文件信息成功",
+#   "code": 200,
+#   "data": {
+#     "createBy": "",
+#     "createTime": "2026-02-08 17:12:20",
+#     "updateBy": "",
+#     "updateTime": null,
+#     "remark": null,
+#     "fileId": 103,
+#     "fileName": "test.jpg",
+#     "fileKey": "test/2026/02/08/29f5124bb4064e1e8e81ed5efbc33f96.jpg",
+#     "fileUrl": "https://aidog.ffd8cb4a1f2ff512d2b986f96266ba0e.r2.cloudflarestorage.com/test/2026/02/08/29f5124bb4064e1e8e81ed5efbc33f96.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20260208T091219Z&X-Amz-SignedHeaders=host&X-Amz-Expires=86400&X-Amz-Credential=3cf920ef4e73c93bab0375a9a6f1f97b%2F20260208%2Fauto%2Fs3%2Faws4_request&X-Amz-Signature=b04c4171398af38dc7bfbad90d6e0d1f720f2e82184406a03e06cef8a8427091",
+#     "fileSize": 158473,
+#     "fileType": "image",
+#     "mimeType": "image/jpeg",
+#     "fileExt": "jpg",
+#     "storageProvider": "s3",
+#     "bucketName": "aidog",
+#     "uploadUserId": null,
+#     "uploadUserType": null,
+#     "businessType": null,
+#     "businessId": null,
+#     "status": "0"
+#   }
+# }
+
+### 1.4 测试文件下载
+GET {{baseUrl}}/test/file/download/114
+Authorization: Bearer {{token}}
+
+# result:
+
+# {
+#   "msg": "获取下载链接成功",
+#   "code": 200,
+#   "data": {
+#     "msg": "操作成功",
+#     "fileName": "test.jpg",
+#     "code": 200,
+#     "fileSize": 158473,
+#     "downloadUrl": "https://aidog.ffd8cb4a1f2ff512d2b986f96266ba0e.r2.cloudflarestorage.com/test/2026/02/08/29f5124bb4064e1e8e81ed5efbc33f96.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20260208T091305Z&X-Amz-SignedHeaders=host&X-Amz-Expires=3600&X-Amz-Credential=3cf920ef4e73c93bab0375a9a6f1f97b%2F20260208%2Fauto%2Fs3%2Faws4_request&X-Amz-Signature=7c1d7eff723ce3cc8bd61bfcdfc57efcad4a82a916ec3e9ddc863c025475c0a7",
+#     "mimeType": "image/jpeg",
+#     "fileId": 103
+#   }
+# }
+
+### 1.5 测试文件删除
+DELETE {{baseUrl}}/test/file/103
+Authorization: Bearer {{token}}
+
+# {
+#   "msg": "文件删除成功",
+#   "code": 200
+# }
+
+### 1.6 测试批量文件上传
+POST {{baseUrl}}/test/file/batchUpload
+Authorization: Bearer {{token}}
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="files"; filename="test1.txt"
+Content-Type: text/plain
+
+Test file 1 content
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="files"; filename="test2.txt"
+Content-Type: text/plain
+
+Test file 2 content
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="folder"
+
+test
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+###############################################################################
+# 2. AI视频生成测试接口 (/test/ai)
+###############################################################################
+
+### 2.1 快速测试 - 创建简单视频任务
+POST {{baseUrl}}/test/ai/quickTest
+Authorization: Bearer {{token}}
+Content-Type: {{contentType}}
+
+### 2.2 创建视频生成任务（文本提示词）
+POST {{baseUrl}}/test/ai/createTask
+Authorization: Bearer {{token}}
+Content-Type: {{contentType}}
+
+{
+  "prompt": "A beautiful sunset over the ocean with waves",
+  "model": "default",
+  "duration": 5,
+  "resolution": "720p",
+  "aspectRatio": "16:9"
+}
+
+### 2.3 创建视频生成任务（图片+提示词）
+POST {{baseUrl}}/test/ai/createTaskWithImage
+Authorization: Bearer {{token}}
+Content-Type: {{contentType}}
+
+{
+  "prompt": "Add motion to this image",
+  "imageUrl": "https://aidog.ffd8cb4a1f2ff512d2b986f96266ba0e.r2.cloudflarestorage.com/test/2026/02/08/29f5124bb4064e1e8e81ed5efbc33f96.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20260208T091305Z&X-Amz-SignedHeaders=host&X-Amz-Expires=3600&X-Amz-Credential=3cf920ef4e73c93bab0375a9a6f1f97b%2F20260208%2Fauto%2Fs3%2Faws4_request&X-Amz-Signature=7c1d7eff723ce3cc8bd61bfcdfc57efcad4a82a916ec3e9ddc863c025475c0a7",
+  "model": "sora-2",
+  "duration": 5,
+  "resolution": "720p",
+  "aspectRatio": "16:9"
+}
+
+### 2.4 查询任务状态
+GET {{baseUrl}}/test/ai/queryTask/106
+Authorization: Bearer {{token}}
+
+
+
+# {
+#   "msg": "查询成功",
+#   "code": 200,
+#   "data": {
+#     "createBy": "",
+#     "createTime": "2026-02-08 22:59:50",
+#     "updateBy": "",
+#     "updateTime": "2026-02-08 23:00:21",
+#     "remark": null,
+#     "taskId": 106,
+#     "taskUuid": "470de1dd-a762-4baa-916b-77f3f3b59610",
+#     "provider": "ark",
+#     "providerTaskId": "cgt-20260208225951-zj4jv",
+#     "userId": 1,
+#     "promptText": "女孩抱着狐狸，女孩睁开眼，温柔地看向镜头，狐狸友善地抱着，镜头缓缓拉出，女孩的头发被风吹动",
+#     "promptImageUrl": "https://ark-project.tos-cn-beijing.volces.com/doc_image/i2v_foxrgirl.png",
+#     "promptImageFileId": null,
+#     "modelName": "doubao-seedance-1-5-pro-251215",
+#     "videoDuration": 5,
+#     "videoResolution": "720p",
+#     "videoAspectRatio": "16:9",
+#     "status": "failed",
+#     "progress": 0,
+#     "providerVideoUrl": null,
+#     "ossVideoUrl": null,
+#     "fileId": null,
+#     "errorCode": "API_ERROR",
+#     "errorMessage": "查询任务状态失败: 400",
+#     "retryCount": 0,
+#     "maxRetry": 3,
+#     "estimatedTime": null,
+#     "costAmount": null,
+#     "startedAt": "2026-02-08 22:59:52",
+#     "completedAt": null
+#   }
+# }
+
+### 2.5 通过UUID查询任务状态
+GET {{baseUrl}}/test/ai/queryTaskByUuid/550e8400-e29b-41d4-a716-446655440000
+Authorization: Bearer {{token}}
+
+### 2.6 同步任务状态（从AI提供商同步）
+POST {{baseUrl}}/test/ai/syncTask/1
+Authorization: Bearer {{token}}
+
+### 2.7 处理完成的任务（下载视频并上传到OSS）
+# 注意：这个接口通常由定时任务自动调用，手动调用仅用于测试
+# 替换 {taskId} 为已完成的任务ID（status = completed）
+POST {{baseUrl}}/test/ai/processCompletedTask/106
+Authorization: Bearer {{token}}
+
+# 说明：
+# - 从提供商下载视频，并上传到配置的 S3/R2 存储
+# - 视频先下载到内存，然后上传（自动获取文件大小）
+# - 上传成功后会发布 VideoGenerationCompletedEvent 事件
+# - 定时任务每30秒自动处理 completed 状态的未上传任务
+
+### 2.8 取消任务
+POST {{baseUrl}}/test/ai/cancelTask/1
+Authorization: Bearer {{token}}
+
+### 2.9 获取当前用户的任务列表
+GET {{baseUrl}}/test/ai/myTasks
+Authorization: Bearer {{token}}
+
+### 2.10 删除任务
+DELETE {{baseUrl}}/test/ai/1
+Authorization: Bearer {{token}}
+
+###############################################################################
+# 2.11. 问题诊断接口 - 排查 400 错误
+###############################################################################
+# 如果遇到 "查询任务状态失败: 400" 错误，请按以下步骤排查：
+#
+# 步骤 1: 诊断提供商配置 (2.11)
+# 步骤 2: 创建任务并记录 providerTaskId (2.5.1 等)
+# 步骤 3: 使用 providerTaskId 直接测试查询 (2.12)
+# 步骤 4: 查看详细错误日志
+#
+# 详细排查指南: docs/TROUBLESHOOTING_ARK_400_ERROR.md
+###############################################################################
+
+### 2.11 诊断AI提供商配置
+# 检查系统中加载了哪些视频提供商
+# 期望看到：openai 和 ark 两个提供商
+GET {{baseUrl}}/test/ai/diagnoseProviders
+Authorization: Bearer {{token}}
+
+# 成功响应示例：
+# {
+#   "code": 200,
+#   "data": {
+#     "status": "success",
+#     "totalProviders": 2,
+#     "providers": [
+#       {"name": "openai", "class": "OpenAiVideoProviderServiceImpl"},
+#       {"name": "ark", "class": "ArkVideoProviderServiceImpl"}
+#     ]
+#   }
+# }
+
+### 2.12 直接测试火山引擎查询接口（用于排查 400 错误）
+# ⚠️ 重要提示：
+# 1. 先执行 2.5.1 或其他创建任务接口
+# 2. 从响应中复制 "providerTaskId"（格式：cgt-xxx）
+# 3. 替换下面的 {providerTaskId}
+# 4. 观察返回的错误信息
+#
+# 常见错误类型：
+# - "API Key 认证失败" → 检查 application-pet.yml 中的 api-key
+# - "请求参数错误" → 检查模型是否开通，任务ID是否正确
+# - "任务不存在" → 任务可能已过期（48小时后自动删除）
+GET {{baseUrl}}/test/ai/testProviderQuery/ark/cgt-20260208225951-zj4jv
+Authorization: Bearer {{token}}
+
+### 2.13 检查任务的详细信息（诊断 provider 字段和状态问题）⭐
+# 用于排查"任务状态会变成 failed"的问题
+# 替换 {taskId} 为要检查的任务ID
+GET {{baseUrl}}/test/ai/inspectTask/106
+Authorization: Bearer {{token}}
+
+# 返回信息说明：
+# - provider: 任务使用的提供商（应该是 "ark" 或 "openai"）
+# - providerTaskId: 提供商返回的任务ID
+# - status: 当前状态
+# - errorCode/errorMessage: 错误信息
+# - retryCount: 重试次数
+# - providerServiceExists: 对应的提供商服务是否加载
+# - providerServiceClass: 提供商服务的类名
+#
+# 常见问题诊断：
+# 1. 如果 providerServiceExists = false → 提供商服务未加载，检查配置
+# 2. 如果 provider 字段为 null 或错误值 → 创建任务时未正确设置
+# 3. 如果 errorMessage 包含 "400" → 查询API失败，可能是API Key或模型问题
+# 4. 如果 retryCount 达到 maxRetry → 任务重试次数已用完
+
+###############################################################################
+# 2.5. 火山引擎 Seedance 模型测试接口 (使用 Ark 提供商)
+###############################################################################
+
+### 2.5.1 文生视频 - 使用 Seedance 1.5 Pro（最高品质）
+POST {{baseUrl}}/test/ai/createTask
+Authorization: Bearer {{token}}
+Content-Type: {{contentType}}
+
+{
+  "provider": "ark",
+  "model": "doubao-seedance-1-5-pro-251215",
+  "prompt": "写实风格，晴朗的蓝天之下，一大片白色的雏菊花田，镜头逐渐拉近，最终定格在一朵雏菊花的特写上，花瓣上有几颗晶莹的露珠",
+  "duration": 5,
+  "ratio": "16:9",
+  "watermark": false
+}
+
+### 2.5.2 图生视频 - 基于首帧图片
+POST {{baseUrl}}/test/ai/createTaskWithImage
+Authorization: Bearer {{token}}
+Content-Type: {{contentType}}
+
+{
+  "provider": "ark",
+  "model": "doubao-seedance-1-5-pro-251215",
+  "prompt": "女孩抱着狐狸，女孩睁开眼，温柔地看向镜头，狐狸友善地抱着，镜头缓缓拉出，女孩的头发被风吹动",
+  "imageUrl": "https://ark-project.tos-cn-beijing.volces.com/doc_image/i2v_foxrgirl.png",
+  "duration": 5,
+  "ratio": "adaptive",
+  "watermark": false
+}
+
+### 2.5.3 音画同生 - 生成带音频的视频（仅 1.5 Pro 支持）
+POST {{baseUrl}}/test/ai/createTask
+Authorization: Bearer {{token}}
+Content-Type: {{contentType}}
+
+{
+  "provider": "ark",
+  "model": "doubao-seedance-1-5-pro-251215",
+  "prompt": "一辆地铁轰隆隆驶过，书页和女孩的头发飞扬，镜头开始环绕着女孩360度旋转，周围的背景从地铁站渐渐转变为一个中世纪的教堂，西式幻想风格的音乐渐入",
+  "duration": 5,
+  "ratio": "16:9",
+  "generateAudio": true,
+  "watermark": false
+}
+
+### 2.5.4 快速生成 - 使用 Pro Fast 模型（注重速度）
+POST {{baseUrl}}/test/ai/createTask
+Authorization: Bearer {{token}}
+Content-Type: {{contentType}}
+
+{
+  "provider": "ark",
+  "model": "doubao-seedance-1-0-pro-fast-251015",
+  "prompt": "夕阳下的海滩，海浪轻拍岸边，天空中飞过几只海鸥",
+  "duration": 5,
+  "ratio": "16:9",
+  "watermark": false
+}
+
+### 2.5.5 竖屏视频 - 适合短视频平台
+POST {{baseUrl}}/test/ai/createTask
+Authorization: Bearer {{token}}
+Content-Type: {{contentType}}
+
+{
+  "provider": "ark",
+  "model": "doubao-seedance-1-5-pro-251215",
+  "prompt": "都市夜景，高楼大厦灯火通明，镜头从下往上仰拍，展现城市的繁华",
+  "duration": 5,
+  "ratio": "9:16",
+  "watermark": false
+}
+
+### 2.5.6 首尾帧生视频 - 根据两张关键帧生成过渡
+POST {{baseUrl}}/test/ai/createTask
+Authorization: Bearer {{token}}
+Content-Type: {{contentType}}
+
+{
+  "provider": "ark",
+  "model": "doubao-seedance-1-0-pro-250528",
+  "prompt": "360度环绕运镜",
+  "imageUrl": "https://example.com/start-frame.png",
+  "endFrameImageUrl": "https://example.com/end-frame.png",
+  "duration": 5,
+  "ratio": "16:9",
+  "watermark": false
+}
+
+### 2.5.7 多参考图生视频 - 使用 Lite I2V 模型
+POST {{baseUrl}}/test/ai/createTask
+Authorization: Bearer {{token}}
+Content-Type: {{contentType}}
+
+{
+  "provider": "ark",
+  "model": "doubao-seedance-1-0-lite-i2v-250428",
+  "prompt": "[图1]戴着眼镜穿着蓝色T恤的男生和[图2]的柯基小狗，坐在[图3]的草坪上，视频卡通风格",
+  "referenceImageUrls": [
+    "https://example.com/person.png",
+    "https://example.com/dog.png",
+    "https://example.com/grass.png"
+  ],
+  "duration": 5,
+  "ratio": "16:9",
+  "watermark": false
+}
+
+### 2.5.8 轻量文生视频 - 使用 Lite T2V 模型（成本优化）
+POST {{baseUrl}}/test/ai/createTask
+Authorization: Bearer {{token}}
+Content-Type: {{contentType}}
+
+{
+  "provider": "ark",
+  "model": "doubao-seedance-1-0-lite-t2v-250428",
+  "prompt": "春天的樱花树下，花瓣随风飘落，阳光透过树叶洒下斑驳的光影",
+  "duration": 5,
+  "ratio": "16:9",
+  "watermark": false
+}
+
+### 2.5.9 长视频生成 - 测试最大时长（12秒）
+POST {{baseUrl}}/test/ai/createTask
+Authorization: Bearer {{token}}
+Content-Type: {{contentType}}
+
+{
+  "provider": "ark",
+  "model": "doubao-seedance-1-5-pro-251215",
+  "prompt": "森林深处，一条小溪缓缓流淌，阳光透过树叶洒下，鸟儿在枝头歌唱，远处传来风吹过树叶的沙沙声",
+  "duration": 12,
+  "ratio": "16:9",
+  "generateAudio": true,
+  "watermark": false
+}
+
+### 2.5.10 对比测试 - 同一提示词使用不同提供商
+# OpenAI 版本
+POST {{baseUrl}}/test/ai/createTask
+Authorization: Bearer {{token}}
+Content-Type: {{contentType}}
+
+{
+  "provider": "openai",
+  "model": "sora-2",
+  "prompt": "A beautiful sunset over the ocean with waves",
+  "duration": 5,
+  "aspectRatio": "16:9"
+}
+
+###
+
+# 火山引擎版本
+POST {{baseUrl}}/test/ai/createTask
+Authorization: Bearer {{token}}
+Content-Type: {{contentType}}
+
+{
+  "provider": "ark",
+  "model": "doubao-seedance-1-5-pro-251215",
+  "prompt": "A beautiful sunset over the ocean with waves",
+  "duration": 5,
+  "ratio": "16:9"
+}
+
+###############################################################################
+# 3. Web3功能测试接口 (/test/web3)
+###############################################################################
+
+### 3.1 快速测试 - 以太坊测试网连接
+GET {{baseUrl}}/test/web3/quickTestEthereum
+Authorization: Bearer {{token}}
+
+### 3.2 快速测试 - BSC测试网连接
+GET {{baseUrl}}/test/web3/quickTestBSC
+Authorization: Bearer {{token}}
+
+### 3.3 测试区块链连接
+GET {{baseUrl}}/test/web3/testConnection/1
+Authorization: Bearer {{token}}
+
+### 3.4 手动触发区块链扫描（扫描所有网络）
+POST {{baseUrl}}/test/web3/triggerScan
+Authorization: Bearer {{token}}
+
+### 3.5 手动触发区块链扫描（指定网络）
+POST {{baseUrl}}/test/web3/triggerScan?networkId=1
+Authorization: Bearer {{token}}
+
+### 3.6 查询交易详情
+GET {{baseUrl}}/test/web3/getTransaction?txHash=0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef
+Authorization: Bearer {{token}}
+
+### 3.7 获取待确认的交易列表
+GET {{baseUrl}}/test/web3/getPendingTransactions
+Authorization: Bearer {{token}}
+
+### 3.8 更新待确认交易的确认数
+POST {{baseUrl}}/test/web3/updatePendingTransactions
+Authorization: Bearer {{token}}
+
+### 3.9 获取所有启用的网络配置
+GET {{baseUrl}}/test/web3/getEnabledNetworks
+Authorization: Bearer {{token}}
+
+### 3.10 获取指定网络的代币配置
+GET {{baseUrl}}/test/web3/getTokensByNetwork/ethereum_sepolia
+Authorization: Bearer {{token}}
+
+###############################################################################
+# 4. Web3管理接口 (/web3) - 生产环境接口
+###############################################################################
+
+### 4.1 查询区块链配置列表
+GET {{baseUrl}}/web3/blockchain/list?pageNum=1&pageSize=10
+Authorization: Bearer {{token}}
+
+### 4.2 查询区块链配置详情
+GET {{baseUrl}}/web3/blockchain/1
+Authorization: Bearer {{token}}
+
+### 4.3 新增区块链配置
+POST {{baseUrl}}/web3/blockchain
+Authorization: Bearer {{token}}
+Content-Type: {{contentType}}
+
+{
+  "networkName": "Ethereum Sepolia",
+  "networkType": "ethereum_sepolia",
+  "chainId": 11155111,
+  "rpcUrl": "https://sepolia.infura.io/v3/YOUR_PROJECT_ID",
+  "explorerUrl": "https://sepolia.etherscan.io",
+  "scanStartBlock": 0,
+  "scanBatchSize": 100,
+  "minConfirmations": 12,
+  "status": "1",
+  "remark": "以太坊Sepolia测试网"
+}
+
+### 4.4 修改区块链配置
+PUT {{baseUrl}}/web3/blockchain
+Authorization: Bearer {{token}}
+Content-Type: {{contentType}}
+
+{
+  "configId": 1,
+  "networkName": "Ethereum Sepolia",
+  "status": "1",
+  "minConfirmations": 15
+}
+
+### 4.5 删除区块链配置
+DELETE {{baseUrl}}/web3/blockchain/1
+Authorization: Bearer {{token}}
+
+### 4.6 测试区块链连接
+GET {{baseUrl}}/web3/blockchain/testConnection/1
+Authorization: Bearer {{token}}
+
+### 4.7 查询代币配置列表
+GET {{baseUrl}}/web3/token/list?pageNum=1&pageSize=10
+Authorization: Bearer {{token}}
+
+### 4.8 新增代币配置
+POST {{baseUrl}}/web3/token
+Authorization: Bearer {{token}}
+Content-Type: {{contentType}}
+
+{
+  "networkType": "ethereum_sepolia",
+  "tokenSymbol": "USDT",
+  "tokenName": "Tether USD",
+  "contractAddress": "0xdac17f958d2ee523a2206206994597c13d831ec7",
+  "decimals": 6,
+  "status": "1",
+  "remark": "以太坊USDT"
+}
+
+### 4.9 查询交易记录列表
+GET {{baseUrl}}/web3/transaction/list?pageNum=1&pageSize=10
+Authorization: Bearer {{token}}
+
+### 4.10 根据交易哈希查询
+GET {{baseUrl}}/web3/transaction/hash/0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef
+Authorization: Bearer {{token}}
+
+### 4.11 查询待确认交易
+GET {{baseUrl}}/web3/transaction/pending?pageNum=1&pageSize=10
+Authorization: Bearer {{token}}
+
+### 4.12 手动触发扫描
+POST {{baseUrl}}/web3/transaction/scan
+Authorization: Bearer {{token}}
+
+###############################################################################
+# 5. 测试场景组合
+###############################################################################
+
+### 场景1：完整的文件上传测试流程
+# 1. 健康检查 -> 2. 上传文件 -> 3. 查看文件信息 -> 4. 下载文件 -> 5. 删除文件
+
+### 场景2：完整的AI视频生成流程（OpenAI）
+# 1. 快速测试 -> 2. 创建任务 -> 3. 查询状态 -> 4. 同步状态 -> 5. 处理完成
+
+### 场景2.5：完整的火山引擎视频生成流程
+# 1. 文生视频 (2.5.1) -> 2. 查询状态 (2.4) -> 3. 同步状态 (2.6) -> 4. 处理完成 (2.7)
+# 或：图生视频 (2.5.2) -> 音画同生 (2.5.3) -> 多参考图 (2.5.7)
+
+### 场景3：完整的Web3扫描流程
+# 1. 快速测试连接 -> 2. 获取启用网络 -> 3. 触发扫描 -> 4. 查询待确认交易 -> 5. 更新确认数
+
+###############################################################################
+# 附录：常用变量值
+###############################################################################
+
+# 网络类型示例：
+# - ethereum_mainnet
+# - ethereum_sepolia
+# - bsc_mainnet
+# - bsc_testnet
+
+# 代币符号示例：
+# - ETH
+# - BNB
+# - USDT
+
+# AI 提供商：
+# - openai: OpenAI Sora
+# - ark: 火山引擎 Seedance
+
+# 视频比例（ratio，火山引擎专用）：
+# - 16:9: 横屏视频
+# - 9:16: 竖屏视频
+# - adaptive: 自适应（根据输入图片）
+
+# 任务状态：
+# - pending: 待处理
+# - processing: 处理中
+# - completed: 已完成
+# - failed: 失败
+# - cancelled: 已取消
+
+# 交易状态：
+# - pending: 待确认
+# - confirmed: 已确认
+# - failed: 失败
+
+###############################################################################
+# 注意事项
+###############################################################################
+
+# 1. 文件上传接口需要实际的文件，可以使用Postman或curl测试
+# 2. AI接口配置：
+#    - OpenAI: 需要配置 OPENAI_API_KEY 环境变量
+#    - 火山引擎: 需要配置 ARK_API_KEY 环境变量（获取：https://console.volcengine.com/ark/region:ark+cn-beijing/apiKey）
+# 3. 火山引擎模型选择：
+#    - doubao-seedance-1-5-pro-251215: 最高品质，支持音画同生（推荐）
+#    - doubao-seedance-1-0-pro-250528: 标准版，平衡品质和速度
+#    - doubao-seedance-1-0-pro-fast-251015: 快速版，注重速度
+#    - doubao-seedance-1-0-lite-t2v-250428: 轻量文生视频
+#    - doubao-seedance-1-0-lite-i2v-250428: 轻量图生视频，支持多参考图
+# 4. Web3接口需要配置RPC URL和Infura Project ID
+# 5. 所有接口都需要先登录获取token
+# 6. 测试接口仅用于开发测试，生产环境应禁用或限制访问
+
+###############################################################################
+# END
+###############################################################################

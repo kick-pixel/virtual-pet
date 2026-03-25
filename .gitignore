@@ -1,0 +1,86 @@
+# Java
+*.class
+*.jar
+*.war
+*.ear
+target/
+out/
+*.iml
+*.pid
+# Maven
+.mvn/
+mvnw
+mvnw.cmd
+
+# Gradle
+.gradle/
+build/
+gradlew
+gradlew.bat
+
+# IDE
+.idea/
+.vscode/
+.metals/
+*.swp
+*.swo
+*~
+.project
+.classpath
+.settings/
+*.sublime-workspace
+*.sublime-project
+
+# AI IDE
+.claude/
+.codebuddy/
+.cursor/
+.bloop/
+.windsurf/
+.continue/
+.ai/
+.ai-workspace/
+.spec-workflow/
+.spec-workspace/
+
+# Logs
+logs/
+*.log
+*.log.*
+
+# Vue/Node.js
+node_modules/
+dist/
+.nuxt/
+.cache/
+.temp/
+.tmp/
+coverage/
+.nyc_output/
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# OS
+.DS_Store
+Thumbs.db
+*.pid
+*.seed
+*.pid.lock
+
+# Package managers
+.pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Misc
+*.bak
+*.backup
+*~
+
+# RuoYi specific
+/upload/
+/generator/
+frontend/virtual-web/dist.zip

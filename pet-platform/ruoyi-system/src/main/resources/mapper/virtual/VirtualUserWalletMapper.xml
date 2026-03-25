@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.VirtualUserWalletMapper">
+
+    <resultMap type="VirtualUserWallet" id="VirtualUserWalletResult">
+        <id     property="id"              column="id"              />
+        <result property="userId"          column="user_id"         />
+        <result property="walletAddress"   column="wallet_address"  />
+        <result property="walletType"      column="wallet_type"     />
+        <result property="chainId"         column="chain_id"        />
+        <result property="isPrimary"       column="is_primary"      />
+        <result property="signature"       column="signature"       />
+        <result property="verifiedAt"      column="verified_at"     />
+        <result property="createTime"      column="create_time"     />
+    </resultMap>
+
+    <sql id="selectVo">
+        select id, user_id, wallet_address, wallet_type, chain_id, is_primary, signature, verified_at, create_time
+        from virtual_user_wallet
+    </sql>
+
+    <select id="selectById" parameterType="Long" resultMap="VirtualUserWalletResult">
+        <include refid="selectVo"/> where id = #{id}
+    </select>
+
+    <select id="selectByWalletAddress" parameterType="String" resultMap="VirtualUserWalletResult">
+        <include refid="selectVo"/> where wallet_address = #{walletAddress}
+    </select>
+
+    <select id="selectByUserId" parameterType="Long" resultMap="VirtualUserWalletResult">
+        <include refid="selectVo"/> where user_id = #{userId}
+    </select>
+
+    <insert id="insertVirtualUserWallet" parameterType="VirtualUserWallet" useGeneratedKeys="true" keyProperty="id">
+        insert into virtual_user_wallet (user_id, wallet_address, wallet_type, chain_id, is_primary, signature, verified_at, create_time)
+        values (#{userId}, #{walletAddress}, #{walletType}, #{chainId}, #{isPrimary}, #{signature}, #{verifiedAt}, sysdate())
+    </insert>
+
+    <update id="updateVirtualUserWallet" parameterType="VirtualUserWallet">
+        update virtual_user_wallet
+        <set>
+            <if test="isPrimary != null">is_primary = #{isPrimary},</if>
+            <if test="walletType != null">wallet_type = #{walletType},</if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteById" parameterType="Long">
+        delete from virtual_user_wallet where id = #{id}
+    </delete>
+
+</mapper>

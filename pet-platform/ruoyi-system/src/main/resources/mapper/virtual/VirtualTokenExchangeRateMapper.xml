@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.VirtualTokenExchangeRateMapper">
+
+    <resultMap type="com.ruoyi.system.domain.VirtualTokenExchangeRate" id="VirtualTokenExchangeRateResult">
+        <result property="rateId"           column="rate_id"            />
+        <result property="tokenSymbol"      column="token_symbol"       />
+        <result property="tokenName"        column="token_name"         />
+        <result property="baseCurrency"     column="base_currency"      />
+        <result property="currentRate"      column="current_rate"       />
+        <result property="rateSource"       column="rate_source"        />
+        <result property="lastUpdateTime"   column="last_update_time"   />
+        <result property="creditsPerUsdt"   column="credits_per_usdt"   />
+        <result property="minAmount"        column="min_amount"         />
+        <result property="maxAmount"        column="max_amount"         />
+        <result property="manualOverride"   column="manual_override"    />
+        <result property="manualRate"       column="manual_rate"        />
+        <result property="status"           column="status"             />
+        <result property="priority"         column="priority"           />
+        <result property="createTime"       column="create_time"        />
+        <result property="updateTime"       column="update_time"        />
+    </resultMap>
+
+    <sql id="selectVirtualTokenExchangeRateVo">
+        select rate_id, token_symbol, token_name, base_currency, current_rate,
+               rate_source, last_update_time, credits_per_usdt, min_amount,
+               max_amount, manual_override, manual_rate, status, priority,
+               create_time, update_time
+        from virtual_token_exchange_rate
+    </sql>
+
+    <select id="selectByTokenSymbol" parameterType="String" resultMap="VirtualTokenExchangeRateResult">
+        <include refid="selectVirtualTokenExchangeRateVo"/>
+        where token_symbol = #{tokenSymbol}
+          and status = 1
+    </select>
+
+    <select id="selectEnabledRates" resultMap="VirtualTokenExchangeRateResult">
+        <include refid="selectVirtualTokenExchangeRateVo"/>
+        where status = 1
+        order by priority asc
+    </select>
+
+    <select id="selectAllRates" resultMap="VirtualTokenExchangeRateResult">
+        <include refid="selectVirtualTokenExchangeRateVo"/>
+        order by priority asc, create_time desc
+    </select>
+
+    <insert id="insert" parameterType="com.ruoyi.system.domain.VirtualTokenExchangeRate" useGeneratedKeys="true" keyProperty="rateId">
+        insert into virtual_token_exchange_rate
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="tokenSymbol != null and tokenSymbol != ''">token_symbol,</if>
+            <if test="tokenName != null and tokenName != ''">token_name,</if>
+            <if test="baseCurrency != null and baseCurrency != ''">base_currency,</if>
+            <if test="currentRate != null">current_rate,</if>
+            <if test="rateSource != null">rate_source,</if>
+            <if test="lastUpdateTime != null">last_update_time,</if>
+            <if test="creditsPerUsdt != null">credits_per_usdt,</if>
+            <if test="minAmount != null">min_amount,</if>
+            <if test="maxAmount != null">max_amount,</if>
+            <if test="manualOverride != null">manual_override,</if>
+            <if test="manualRate != null">manual_rate,</if>
+            <if test="status != null">status,</if>
+            <if test="priority != null">priority,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateTime != null">update_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="tokenSymbol != null and tokenSymbol != ''">#{tokenSymbol},</if>
+            <if test="tokenName != null and tokenName != ''">#{tokenName},</if>
+            <if test="baseCurrency != null and baseCurrency != ''">#{baseCurrency},</if>
+            <if test="currentRate != null">#{currentRate},</if>
+            <if test="rateSource != null">#{rateSource},</if>
+            <if test="lastUpdateTime != null">#{lastUpdateTime},</if>
+            <if test="creditsPerUsdt != null">#{creditsPerUsdt},</if>
+            <if test="minAmount != null">#{minAmount},</if>
+            <if test="maxAmount != null">#{maxAmount},</if>
+            <if test="manualOverride != null">#{manualOverride},</if>
+            <if test="manualRate != null">#{manualRate},</if>
+            <if test="status != null">#{status},</if>
+            <if test="priority != null">#{priority},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+        </trim>
+    </insert>
+
+    <update id="update" parameterType="com.ruoyi.system.domain.VirtualTokenExchangeRate">
+        update virtual_token_exchange_rate
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="tokenSymbol != null and tokenSymbol != ''">token_symbol = #{tokenSymbol},</if>
+            <if test="tokenName != null and tokenName != ''">token_name = #{tokenName},</if>
+            <if test="baseCurrency != null and baseCurrency != ''">base_currency = #{baseCurrency},</if>
+            <if test="currentRate != null">current_rate = #{currentRate},</if>
+            <if test="rateSource != null">rate_source = #{rateSource},</if>
+            <if test="lastUpdateTime != null">last_update_time = #{lastUpdateTime},</if>
+            <if test="creditsPerUsdt != null">credits_per_usdt = #{creditsPerUsdt},</if>
+            <if test="minAmount != null">min_amount = #{minAmount},</if>
+            <if test="maxAmount != null">max_amount = #{maxAmount},</if>
+            <if test="manualOverride != null">manual_override = #{manualOverride},</if>
+            <if test="manualRate != null">manual_rate = #{manualRate},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="priority != null">priority = #{priority},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where rate_id = #{rateId}
+    </update>
+
+    <update id="updateRate">
+        update virtual_token_exchange_rate
+        set current_rate = #{rate},
+            rate_source = #{source},
+            last_update_time = now(),
+            update_time = now()
+        where token_symbol = #{tokenSymbol}
+          and status = 1
+    </update>
+
+    <delete id="deleteById" parameterType="Long">
+        delete from virtual_token_exchange_rate where rate_id = #{rateId}
+    </delete>
+
+    <delete id="deleteByTokenSymbol" parameterType="String">
+        delete from virtual_token_exchange_rate where token_symbol = #{tokenSymbol}
+    </delete>
+
+</mapper>

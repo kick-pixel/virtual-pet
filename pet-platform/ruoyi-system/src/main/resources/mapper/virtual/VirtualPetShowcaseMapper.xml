@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.VirtualPetShowcaseMapper">
+
+    <resultMap type="VirtualPetShowcase" id="VirtualPetShowcaseResult">
+        <id     property="showcaseId"      column="showcase_id"      />
+        <result property="title"           column="title"            />
+        <result property="description"     column="description"      />
+        <result property="mediaType"       column="media_type"       />
+        <result property="mediaUrl"        column="media_url"        />
+        <result property="thumbnailUrl"    column="thumbnail_url"    />
+        <result property="category"        column="category"         />
+        <result property="tags"            column="tags"             />
+        <result property="petType"         column="pet_type"         />
+        <result property="viewCount"       column="view_count"       />
+        <result property="likeCount"       column="like_count"       />
+        <result property="shareCount"      column="share_count"      />
+        <result property="favoriteCount"   column="favorite_count"   />
+        <result property="sourceTaskId"    column="source_task_id"   />
+        <result property="sourceUserId"    column="source_user_id"   />
+        <result property="isFeatured"      column="is_featured"      />
+        <result property="isOfficial"      column="is_official"      />
+        <result property="status"          column="status"           />
+        <result property="sortOrder"       column="sort_order"       />
+        <result property="createTime"      column="create_time"      />
+        <result property="updateTime"      column="update_time"      />
+    </resultMap>
+
+    <sql id="selectVo">
+        select showcase_id, title, description, media_type, media_url, thumbnail_url, category,
+               tags, pet_type, view_count, like_count, share_count, favorite_count,
+               source_task_id, source_user_id, is_featured, is_official, status, sort_order,
+               create_time, update_time
+        from virtual_pet_showcase
+    </sql>
+
+    <select id="selectByShowcaseId" parameterType="Long" resultMap="VirtualPetShowcaseResult">
+        <include refid="selectVo"/> where showcase_id = #{showcaseId}
+    </select>
+
+    <select id="selectVirtualPetShowcaseList" parameterType="VirtualPetShowcase" resultMap="VirtualPetShowcaseResult">
+        <include refid="selectVo"/>
+        <where>
+            <if test="category != null and category != ''">AND category = #{category}</if>
+            <if test="petType != null and petType != ''">AND pet_type = #{petType}</if>
+            <if test="mediaType != null and mediaType != ''">AND media_type = #{mediaType}</if>
+            <if test="isFeatured != null">AND is_featured = #{isFeatured}</if>
+            <if test="isOfficial != null">AND is_official = #{isOfficial}</if>
+            <if test="status != null">AND status = #{status}</if>
+        </where>
+        order by sort_order, create_time desc
+    </select>
+
+    <select id="selectFeaturedShowcases" resultMap="VirtualPetShowcaseResult">
+        <include refid="selectVo"/>
+        where is_featured = 1 and status = 1
+        order by sort_order, create_time desc
+    </select>
+
+    <insert id="insertVirtualPetShowcase" parameterType="VirtualPetShowcase" useGeneratedKeys="true" keyProperty="showcaseId">
+        insert into virtual_pet_showcase (title, description, media_type, media_url, thumbnail_url,
+            category, tags, pet_type, source_task_id, source_user_id, is_featured, is_official,
+            status, sort_order, create_time)
+        values (#{title}, #{description}, #{mediaType}, #{mediaUrl}, #{thumbnailUrl},
+            #{category}, #{tags}, #{petType}, #{sourceTaskId}, #{sourceUserId}, #{isFeatured},
+            #{isOfficial}, #{status}, #{sortOrder}, sysdate())
+    </insert>
+
+    <update id="updateVirtualPetShowcase" parameterType="VirtualPetShowcase">
+        update virtual_pet_showcase
+        <set>
+            <if test="title != null">title = #{title},</if>
+            <if test="description != null">description = #{description},</if>
+            <if test="thumbnailUrl != null">thumbnail_url = #{thumbnailUrl},</if>
+            <if test="category != null">category = #{category},</if>
+            <if test="tags != null">tags = #{tags},</if>
+            <if test="isFeatured != null">is_featured = #{isFeatured},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="sortOrder != null">sort_order = #{sortOrder},</if>
+            update_time = sysdate()
+        </set>
+        where showcase_id = #{showcaseId}
+    </update>
+
+    <update id="incrementViewCount" parameterType="Long">
+        update virtual_pet_showcase set view_count = view_count + 1 where showcase_id = #{showcaseId}
+    </update>
+    <update id="incrementLikeCount" parameterType="Long">
+        update virtual_pet_showcase set like_count = like_count + 1 where showcase_id = #{showcaseId}
+    </update>
+    <update id="incrementShareCount" parameterType="Long">
+        update virtual_pet_showcase set share_count = share_count + 1 where showcase_id = #{showcaseId}
+    </update>
+    <update id="incrementFavoriteCount" parameterType="Long">
+        update virtual_pet_showcase set favorite_count = favorite_count + 1 where showcase_id = #{showcaseId}
+    </update>
+    <update id="decrementFavoriteCount" parameterType="Long">
+        update virtual_pet_showcase set favorite_count = favorite_count - 1 where showcase_id = #{showcaseId} and favorite_count &gt; 0
+    </update>
+
+</mapper>

@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <!-- 暖米色背景 -->
+  <circle cx="50" cy="50" r="50" fill="#FEF6E4"/>
+
+  <!-- 左耳外层（深棕） -->
+  <path d="M 19 46 L 15 10 L 39 33 Z" fill="#9A5818"/>
+  <!-- 左耳内层（金黄） -->
+  <path d="M 21 44 L 17 14 L 36 33 Z" fill="#CF8524"/>
+
+  <!-- 右耳外层（深棕） -->
+  <path d="M 81 46 L 85 10 L 61 33 Z" fill="#9A5818"/>
+  <!-- 右耳内层（金黄） -->
+  <path d="M 79 44 L 83 14 L 64 33 Z" fill="#CF8524"/>
+
+  <!-- 主头部（深金棕） -->
+  <ellipse cx="50" cy="58" rx="33" ry="28" fill="#B46E1A"/>
+
+  <!-- 上额面部（亮金） -->
+  <ellipse cx="50" cy="49" rx="25" ry="18" fill="#CF8524"/>
+
+  <!-- 口吻区外层（中金） -->
+  <ellipse cx="50" cy="69" rx="17" ry="13" fill="#DA9430"/>
+  <!-- 口吻区内层（浅金白） -->
+  <ellipse cx="50" cy="69" rx="11.5" ry="9" fill="#EDD080"/>
+
+  <!-- 左眼（深棕黑） -->
+  <ellipse cx="37" cy="52" rx="6.5" ry="5.5" fill="#0E0400"/>
+  <ellipse cx="35.5" cy="50.5" rx="2.5" ry="2" fill="white"/>
+  <circle cx="37" cy="51.5" r="1.2" fill="#030100"/>
+  <circle cx="35.8" cy="50.2" r="0.5" fill="rgba(255,255,255,0.85)"/>
+
+  <!-- 右眼（深棕黑） -->
+  <ellipse cx="63" cy="52" rx="6.5" ry="5.5" fill="#0E0400"/>
+  <ellipse cx="61.5" cy="50.5" rx="2.5" ry="2" fill="white"/>
+  <circle cx="63" cy="51.5" r="1.2" fill="#030100"/>
+  <circle cx="61.8" cy="50.2" r="0.5" fill="rgba(255,255,255,0.85)"/>
+
+  <!-- 眉毛（表情线） -->
+  <path d="M 31 47 Q 37 44 43 47" stroke="#7A3E0E" stroke-width="2" fill="none" stroke-linecap="round"/>
+  <path d="M 57 47 Q 63 44 69 47" stroke="#7A3E0E" stroke-width="2" fill="none" stroke-linecap="round"/>
+
+  <!-- 鼻子（黑色） -->
+  <ellipse cx="50" cy="63" rx="4.5" ry="3.2" fill="#050200"/>
+  <ellipse cx="49" cy="62.3" rx="1.6" ry="1" fill="#302010" opacity="0.6"/>
+
+  <!-- 嘴巴（微笑弧线） -->
+  <path d="M 46.5 68.5 Q 50 72.5 53.5 68.5" stroke="#4A2808" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+</svg>

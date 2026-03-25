@@ -1,0 +1,40 @@
+{
+  "name": "virtual-web",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vue-tsc -b && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@tanstack/vue-query": "^5.92.9",
+    "@vueuse/core": "^14.2.1",
+    "@wagmi/vue": "^0.4.15",
+    "@web3modal/siwe": "^5.1.11",
+    "@web3modal/wagmi": "^5.1.11",
+    "@yeger/vue-masonry-wall": "^5.1.5",
+    "ant-design-vue": "^4.2.6",
+    "axios": "^1.13.5",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "lucide-vue-next": "^0.563.0",
+    "pinia": "^3.0.4",
+    "plyr": "^3.8.4",
+    "radix-vue": "^1.9.17",
+    "viem": "^2.45.2",
+    "vue": "^3.5.25",
+    "vue-i18n": "^11.2.8",
+    "vue-router": "^4.6.4",
+    "vue-waterfall-plugin-next": "^3.0.1"
+  },
+  "devDependencies": {
+    "@types/node": "^24.10.1",
+    "@vitejs/plugin-vue": "^6.0.2",
+    "@vue/tsconfig": "^0.8.1",
+    "typescript": "~5.9.3",
+    "vite": "^7.3.1",
+    "vue-tsc": "^3.1.5"
+  }
+}

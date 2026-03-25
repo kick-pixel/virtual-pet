@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.VirtualDailyCheckinMapper">
+
+    <resultMap type="com.ruoyi.system.domain.VirtualDailyCheckin" id="VirtualDailyCheckinResult">
+        <id     property="checkinId"      column="checkin_id"      />
+        <result property="userId"         column="user_id"         />
+        <result property="checkinDate"    column="checkin_date"    />
+        <result property="daySequence"    column="day_sequence"    />
+        <result property="creditsAwarded" column="credits_awarded" />
+        <result property="createTime"     column="create_time"     />
+    </resultMap>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="checkinId">
+        INSERT INTO virtual_daily_checkin (user_id, checkin_date, day_sequence, credits_awarded, create_time)
+        VALUES (#{userId}, #{checkinDate}, #{daySequence}, #{creditsAwarded}, NOW())
+    </insert>
+
+    <select id="selectByUserIdAndDate" resultMap="VirtualDailyCheckinResult">
+        SELECT checkin_id, user_id, checkin_date, day_sequence, credits_awarded, create_time
+        FROM virtual_daily_checkin
+        WHERE user_id = #{userId} AND checkin_date = #{date}
+        LIMIT 1
+    </select>
+
+    <select id="selectByUserIdAndYesterday" resultMap="VirtualDailyCheckinResult">
+        SELECT checkin_id, user_id, checkin_date, day_sequence, credits_awarded, create_time
+        FROM virtual_daily_checkin
+        WHERE user_id = #{userId} AND checkin_date = #{date}
+        LIMIT 1
+    </select>
+
+    <select id="selectCountByUserId" resultType="int">
+        SELECT COUNT(1)
+        FROM virtual_daily_checkin
+        WHERE user_id = #{userId}
+    </select>
+
+    <select id="selectRecentByUserId" resultMap="VirtualDailyCheckinResult">
+        SELECT checkin_id, user_id, checkin_date, day_sequence, credits_awarded, create_time
+        FROM virtual_daily_checkin
+        WHERE user_id = #{userId}
+        ORDER BY checkin_date DESC
+        LIMIT #{limit}
+    </select>
+
+    <!-- 管理后台签到统计列表（consecutive_days / max_streak_days 直接读 virtual_user 字段，无需子查询） -->
+    <resultMap type="com.ruoyi.system.domain.VirtualCheckinAdminVO" id="VirtualCheckinAdminVOResult">
+        <result property="userId"           column="user_id"            />
+        <result property="email"            column="email"              />
+        <result property="checkinTime"      column="checkin_time"       />
+        <result property="lastCheckinDate"  column="last_checkin_date"  />
+        <result property="currentStreak"    column="current_streak"     />
+        <result property="maxStreakDays"    column="max_streak_days"    />
+        <result property="totalCheckinDays" column="total_checkin_days" />
+    </resultMap>
+
+    <select id="selectAdminCheckinList" parameterType="com.ruoyi.system.domain.VirtualCheckinAdminVO"
+            resultMap="VirtualCheckinAdminVOResult">
+        SELECT
+          u.user_id,
+          u.email,
+          CASE WHEN COUNT(d.checkin_id) > 0 THEN GREATEST(COALESCE(u.consecutive_days, 1), 1) ELSE COALESCE(u.consecutive_days, 0) END AS current_streak,
+          CASE WHEN COUNT(d.checkin_id) > 0 THEN GREATEST(COALESCE(u.max_streak_days, 1), 1) ELSE COALESCE(u.max_streak_days, 0) END AS max_streak_days,
+          MAX(d.create_time)  AS checkin_time,
+          MAX(d.checkin_date) AS last_checkin_date,
+          COUNT(d.checkin_id) AS total_checkin_days
+        FROM virtual_user u
+        LEFT JOIN virtual_daily_checkin d ON d.user_id = u.user_id
+        <where>
+            <if test="queryUserId != null">AND u.user_id = #{queryUserId}</if>
+            <if test="beginTime != null and beginTime != ''">AND d.checkin_date &gt;= #{beginTime}</if>
+            <if test="endTime != null and endTime != ''">AND d.checkin_date &lt;= #{endTime}</if>
+        </where>
+        GROUP BY u.user_id, u.email, u.consecutive_days, u.max_streak_days
+        HAVING COUNT(d.checkin_id) > 0
+        ORDER BY last_checkin_date DESC
+    </select>
+
+</mapper>

@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.VirtualUserCreditsMapper">
+
+    <resultMap type="VirtualUserCredits" id="VirtualUserCreditsResult">
+        <id     property="id"              column="id"              />
+        <result property="userId"          column="user_id"         />
+        <result property="balance"         column="balance"         />
+        <result property="frozen"          column="frozen"          />
+        <result property="totalEarned"     column="total_earned"    />
+        <result property="totalSpent"      column="total_spent"     />
+        <result property="totalRefunded"   column="total_refunded"  />
+        <result property="version"         column="version"         />
+        <result property="createTime"      column="create_time"     />
+        <result property="updateTime"      column="update_time"     />
+    </resultMap>
+
+    <select id="selectByUserId" parameterType="Long" resultMap="VirtualUserCreditsResult">
+        select id, user_id, balance, frozen, total_earned, total_spent, total_refunded, version, create_time, update_time
+        from virtual_user_credits
+        where user_id = #{userId}
+    </select>
+
+    <insert id="insertVirtualUserCredits" parameterType="VirtualUserCredits" useGeneratedKeys="true" keyProperty="id">
+        insert into virtual_user_credits (user_id, balance, frozen, total_earned, total_spent, total_refunded, version, create_time)
+        values (#{userId}, #{balance}, #{frozen}, #{totalEarned}, #{totalSpent}, #{totalRefunded}, 0, sysdate())
+    </insert>
+
+    <update id="updateVirtualUserCredits" parameterType="VirtualUserCredits">
+        update virtual_user_credits
+        <set>
+            <if test="balance != null">balance = #{balance},</if>
+            <if test="frozen != null">frozen = #{frozen},</if>
+            <if test="totalEarned != null">total_earned = #{totalEarned},</if>
+            <if test="totalSpent != null">total_spent = #{totalSpent},</if>
+            <if test="totalRefunded != null">total_refunded = #{totalRefunded},</if>
+            version = version + 1,
+            update_time = sysdate()
+        </set>
+        where user_id = #{userId} and version = #{version}
+    </update>
+
+    <!-- 乐观锁冻结积分: balance -= amount, frozen += amount -->
+    <update id="freezeCredits">
+        update virtual_user_credits
+        set balance = balance - #{amount},
+            frozen = frozen + #{amount},
+            version = version + 1,
+            update_time = sysdate()
+        where user_id = #{userId}
+          and version = #{version}
+          and balance >= #{amount}
+    </update>
+
+    <!-- 确认消费: frozen -= amount, total_spent += amount -->
+    <update id="confirmSpend">
+        update virtual_user_credits
+        set frozen = frozen - #{amount},
+            total_spent = total_spent + #{amount},
+            version = version + 1,
+            update_time = sysdate()
+        where user_id = #{userId}
+          and version = #{version}
+          and frozen >= #{amount}
+    </update>
+
+    <!-- 退还冻结: frozen -= amount, balance += amount, total_refunded += amount -->
+    <update id="refundFrozen">
+        update virtual_user_credits
+        set frozen = frozen - #{amount},
+            balance = balance + #{amount},
+            total_refunded = total_refunded + #{amount},
+            version = version + 1,
+            update_time = sysdate()
+        where user_id = #{userId}
+          and version = #{version}
+          and frozen >= #{amount}
+    </update>
+
+    <!-- 充值/奖励增加积分: balance += amount, total_earned += amount -->
+    <update id="addCredits">
+        update virtual_user_credits
+        set balance = balance + #{amount},
+            total_earned = total_earned + #{amount},
+            version = version + 1,
+            update_time = sysdate()
+        where user_id = #{userId}
+          and version = #{version}
+    </update>
+
+</mapper>

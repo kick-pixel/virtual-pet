@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.VirtualApiDailyStatsMapper">
+
+    <resultMap type="VirtualApiDailyStats" id="VirtualApiDailyStatsResult">
+        <id     property="statDate"      column="stat_date"      />
+        <result property="totalCount"    column="total_count"    />
+        <result property="successCount"  column="success_count"  />
+        <result property="failCount"     column="fail_count"     />
+        <result property="timeoutCount"  column="timeout_count"  />
+        <result property="avgDurationS"  column="avg_duration_s" />
+        <result property="successRate"   column="success_rate"   />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <!--
+        UPSERT 指定日期的统计数据
+        使用范围条件 create_time >= date AND create_time < date+1day，
+        避免 DATE(create_time) 函数包裹导致索引失效
+    -->
+    <insert id="upsertDailyStats">
+        INSERT INTO virtual_api_daily_stats
+            (stat_date, total_count, success_count, fail_count,
+             timeout_count, avg_duration_s, success_rate)
+        SELECT
+            #{statDate},
+            COUNT(*)                                                              AS total_count,
+            IFNULL(SUM(CASE WHEN status = 'completed' THEN 1 ELSE 0 END), 0)    AS success_count,
+            IFNULL(SUM(CASE WHEN status = 'failed'    THEN 1 ELSE 0 END), 0)    AS fail_count,
+            IFNULL(SUM(CASE WHEN error_code = 'TIMEOUT'
+                      OR error_message LIKE '%timeout%' THEN 1 ELSE 0 END), 0)  AS timeout_count,
+            ROUND(AVG(
+                CASE WHEN status = 'completed'
+                      AND started_at   IS NOT NULL
+                      AND completed_at IS NOT NULL
+                     THEN TIMESTAMPDIFF(SECOND, started_at, completed_at)
+                END
+            ), 2)                                                                 AS avg_duration_s,
+            ROUND(
+                SUM(CASE WHEN status = 'completed' THEN 1 ELSE 0 END)
+                * 100.0 / NULLIF(COUNT(*), 0),
+            2)                                                                    AS success_rate
+        FROM ai_video_task
+        WHERE create_time &gt;= #{statDate}
+          AND create_time  &lt; DATE_ADD(#{statDate}, INTERVAL 1 DAY)
+        ON DUPLICATE KEY UPDATE
+            total_count    = VALUES(total_count),
+            success_count  = VALUES(success_count),
+            fail_count     = VALUES(fail_count),
+            timeout_count  = VALUES(timeout_count),
+            avg_duration_s = VALUES(avg_duration_s),
+            success_rate   = VALUES(success_rate),
+            update_time    = NOW()
+    </insert>
+
+    <!-- 按日期范围查询中间表（历史数据） -->
+    <select id="selectByDateRange" resultMap="VirtualApiDailyStatsResult">
+        SELECT stat_date, total_count, success_count, fail_count,
+               timeout_count, avg_duration_s, success_rate, create_time, update_time
+        FROM virtual_api_daily_stats
+        WHERE stat_date &gt;= #{beginDate}
+          AND stat_date &lt;= #{endDate}
+        ORDER BY stat_date
+    </select>
+
+    <!-- 今日实时聚合（直接查 ai_video_task，配合 idx_date_status 索引） -->
+    <select id="selectRealtimeForDate" resultMap="VirtualApiDailyStatsResult">
+        SELECT
+            #{statDate}                                                           AS stat_date,
+            COUNT(*)                                                              AS total_count,
+            IFNULL(SUM(CASE WHEN status = 'completed' THEN 1 ELSE 0 END), 0)    AS success_count,
+            IFNULL(SUM(CASE WHEN status = 'failed'    THEN 1 ELSE 0 END), 0)    AS fail_count,
+            IFNULL(SUM(CASE WHEN error_code = 'TIMEOUT'
+                      OR error_message LIKE '%timeout%' THEN 1 ELSE 0 END), 0)  AS timeout_count,
+            ROUND(AVG(CASE WHEN status = 'completed' AND started_at IS NOT NULL
+                           THEN TIMESTAMPDIFF(SECOND, started_at, completed_at) END), 2) AS avg_duration_s,
+            ROUND(SUM(CASE WHEN status = 'completed' THEN 1 ELSE 0 END)
+                  * 100.0 / NULLIF(COUNT(*), 0), 2)                             AS success_rate
+        FROM ai_video_task
+        WHERE create_time &gt;= #{statDate}
+          AND create_time  &lt; DATE_ADD(#{statDate}, INTERVAL 1 DAY)
+    </select>
+
+</mapper>

@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.VirtualUserStatsMapper">
+
+    <resultMap type="VirtualUserStats" id="VirtualUserStatsResult">
+        <id     property="userId"         column="user_id"          />
+        <result property="totalGenCount"  column="total_gen_count"  />
+        <result property="failGenCount"   column="fail_gen_count"   />
+        <result property="lastGenTime"    column="last_gen_time"    />
+        <result property="updateTime"     column="update_time"      />
+    </resultMap>
+
+    <!-- 全量刷新：从 ai_video_task 聚合，INSERT ... ON DUPLICATE KEY UPDATE -->
+    <insert id="upsertAllFromAiVideoTask">
+        INSERT INTO virtual_user_stats
+            (user_id, total_gen_count, fail_gen_count, last_gen_time)
+        SELECT
+            user_id,
+            COUNT(*)                                                AS total_gen_count,
+            SUM(CASE WHEN status = 'failed' THEN 1 ELSE 0 END)    AS fail_gen_count,
+            MAX(create_time)                                        AS last_gen_time
+        FROM ai_video_task
+        WHERE user_id IS NOT NULL
+        GROUP BY user_id
+        ON DUPLICATE KEY UPDATE
+            total_gen_count = VALUES(total_gen_count),
+            fail_gen_count  = VALUES(fail_gen_count),
+            last_gen_time   = VALUES(last_gen_time),
+            update_time     = NOW()
+    </insert>
+
+    <!-- 增量：视频完成时 total_gen_count +1 -->
+    <insert id="incrementTotalGenCount">
+        INSERT INTO virtual_user_stats (user_id, total_gen_count, fail_gen_count, last_gen_time)
+        VALUES (#{userId}, 1, 0, NOW())
+        ON DUPLICATE KEY UPDATE
+            total_gen_count = total_gen_count + 1,
+            last_gen_time   = NOW(),
+            update_time     = NOW()
+    </insert>
+
+    <!-- 增量：视频失败时 total_gen_count +1 && fail_gen_count +1 -->
+    <insert id="incrementBothCounts">
+        INSERT INTO virtual_user_stats (user_id, total_gen_count, fail_gen_count, last_gen_time)
+        VALUES (#{userId}, 1, 1, NOW())
+        ON DUPLICATE KEY UPDATE
+            total_gen_count = total_gen_count + 1,
+            fail_gen_count  = fail_gen_count  + 1,
+            last_gen_time   = NOW(),
+            update_time     = NOW()
+    </insert>
+
+    <select id="selectByUserId" parameterType="Long" resultMap="VirtualUserStatsResult">
+        SELECT user_id, total_gen_count, fail_gen_count, last_gen_time, update_time
+        FROM virtual_user_stats
+        WHERE user_id = #{userId}
+    </select>
+
+</mapper>

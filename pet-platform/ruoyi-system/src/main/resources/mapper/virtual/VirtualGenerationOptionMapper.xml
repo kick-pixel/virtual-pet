@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.VirtualGenerationOptionMapper">
+
+    <resultMap type="VirtualGenerationOption" id="VirtualGenerationOptionResult">
+        <id     property="optionId"         column="option_id"         />
+        <result property="optionGroup"      column="option_group"      />
+        <result property="optionCode"       column="option_code"       />
+        <result property="optionName"       column="option_name"       />
+        <result property="optionValue"      column="option_value"      />
+        <result property="creditsModifier"  column="credits_modifier"  />
+        <result property="extraConfig"      column="extra_config"      />
+        <result property="isDefault"        column="is_default"        />
+        <result property="isPremium"        column="is_premium"        />
+        <result property="status"           column="status"            />
+        <result property="sortOrder"        column="sort_order"        />
+        <result property="createTime"       column="create_time"       />
+    </resultMap>
+
+    <sql id="selectVo">
+        select option_id, option_group, option_code, option_name, option_value, credits_modifier,
+               extra_config, is_default, is_premium, status, sort_order, create_time
+        from virtual_generation_option
+    </sql>
+
+    <select id="selectByOptionId" parameterType="Long" resultMap="VirtualGenerationOptionResult">
+        <include refid="selectVo"/> where option_id = #{optionId}
+    </select>
+
+    <select id="selectByGroup" parameterType="String" resultMap="VirtualGenerationOptionResult">
+        <include refid="selectVo"/> where option_group = #{optionGroup} and status = 1 order by sort_order
+    </select>
+
+    <select id="selectActiveOptions" resultMap="VirtualGenerationOptionResult">
+        <include refid="selectVo"/> where status = 1 order by option_group, sort_order
+    </select>
+
+    <select id="selectVirtualGenerationOptionList" parameterType="VirtualGenerationOption" resultMap="VirtualGenerationOptionResult">
+        <include refid="selectVo"/>
+        <where>
+            <if test="optionGroup != null and optionGroup != ''">AND option_group = #{optionGroup}</if>
+            <if test="status != null">AND status = #{status}</if>
+        </where>
+        order by option_group, sort_order
+    </select>
+
+    <insert id="insertVirtualGenerationOption" parameterType="VirtualGenerationOption" useGeneratedKeys="true" keyProperty="optionId">
+        insert into virtual_generation_option (option_group, option_code, option_name, option_value,
+            credits_modifier, extra_config, is_default, is_premium, status, sort_order, create_time)
+        values (#{optionGroup}, #{optionCode}, #{optionName}, #{optionValue},
+            #{creditsModifier}, #{extraConfig}, #{isDefault}, #{isPremium}, #{status}, #{sortOrder}, sysdate())
+    </insert>
+
+    <update id="updateVirtualGenerationOption" parameterType="VirtualGenerationOption">
+        update virtual_generation_option
+        <set>
+            <if test="optionName != null">option_name = #{optionName},</if>
+            <if test="optionValue != null">option_value = #{optionValue},</if>
+            <if test="creditsModifier != null">credits_modifier = #{creditsModifier},</if>
+            <if test="extraConfig != null">extra_config = #{extraConfig},</if>
+            <if test="isDefault != null">is_default = #{isDefault},</if>
+            <if test="isPremium != null">is_premium = #{isPremium},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="sortOrder != null">sort_order = #{sortOrder},</if>
+        </set>
+        where option_id = #{optionId}
+    </update>
+
+</mapper>

@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.SysTokenConfigMapper">
+
+    <resultMap type="SysTokenConfig" id="SysTokenConfigResult">
+        <id     property="tokenId"         column="token_id"         />
+        <result property="networkType"     column="network_type"     />
+        <result property="tokenSymbol"     column="token_symbol"     />
+        <result property="tokenName"       column="token_name"       />
+        <result property="contractAddress" column="contract_address" />
+        <result property="decimals"        column="decimals"         />
+        <result property="isNative"        column="is_native"        />
+        <result property="logoUrl"         column="logo_url"         />
+        <result property="status"          column="status"           />
+        <result property="remark"          column="remark"           />
+        <result property="createBy"        column="create_by"        />
+        <result property="createTime"      column="create_time"      />
+        <result property="updateBy"        column="update_by"        />
+        <result property="updateTime"      column="update_time"      />
+    </resultMap>
+
+    <sql id="selectTokenConfigVo">
+        select token_id, network_type, token_symbol, token_name, contract_address,
+               decimals, is_native, logo_url, status, remark, create_by, create_time, update_by, update_time
+        from sys_token_config
+    </sql>
+
+    <select id="selectTokenConfigById" parameterType="Long" resultMap="SysTokenConfigResult">
+        <include refid="selectTokenConfigVo"/>
+        where token_id = #{tokenId}
+    </select>
+
+    <select id="selectTokenConfigByNetworkAndSymbol" resultMap="SysTokenConfigResult">
+        <include refid="selectTokenConfigVo"/>
+        where network_type = #{networkType} and token_symbol = #{tokenSymbol}
+    </select>
+
+    <select id="selectTokenConfigList" parameterType="SysTokenConfig" resultMap="SysTokenConfigResult">
+        <include refid="selectTokenConfigVo"/>
+        <where>
+            <if test="networkType != null and networkType != ''">
+                AND network_type = #{networkType}
+            </if>
+            <if test="tokenSymbol != null and tokenSymbol != ''">
+                AND token_symbol = #{tokenSymbol}
+            </if>
+            <if test="tokenName != null and tokenName != ''">
+                AND token_name like concat('%', #{tokenName}, '%')
+            </if>
+            <if test="isNative != null and isNative != ''">
+                AND is_native = #{isNative}
+            </if>
+            <if test="status != null and status != ''">
+                AND status = #{status}
+            </if>
+        </where>
+        order by token_id
+    </select>
+
+    <select id="selectTokenConfigByNetwork" parameterType="String" resultMap="SysTokenConfigResult">
+        <include refid="selectTokenConfigVo"/>
+        where network_type = #{networkType} and status = '0'
+        order by token_id
+    </select>
+
+    <select id="selectEnabledTokenConfigList" resultMap="SysTokenConfigResult">
+        <include refid="selectTokenConfigVo"/>
+        where status = '0'
+        order by network_type, token_id
+    </select>
+
+    <insert id="insertTokenConfig" parameterType="SysTokenConfig" useGeneratedKeys="true" keyProperty="tokenId">
+        insert into sys_token_config (
+            <if test="networkType != null and networkType != ''">network_type,</if>
+            <if test="tokenSymbol != null and tokenSymbol != ''">token_symbol,</if>
+            <if test="tokenName != null and tokenName != ''">token_name,</if>
+            <if test="contractAddress != null">contract_address,</if>
+            <if test="decimals != null">decimals,</if>
+            <if test="isNative != null and isNative != ''">is_native,</if>
+            <if test="logoUrl != null and logoUrl != ''">logo_url,</if>
+            <if test="status != null and status != ''">status,</if>
+            <if test="remark != null and remark != ''">remark,</if>
+            <if test="createBy != null and createBy != ''">create_by,</if>
+            create_time
+        ) values (
+            <if test="networkType != null and networkType != ''">#{networkType},</if>
+            <if test="tokenSymbol != null and tokenSymbol != ''">#{tokenSymbol},</if>
+            <if test="tokenName != null and tokenName != ''">#{tokenName},</if>
+            <if test="contractAddress != null">#{contractAddress},</if>
+            <if test="decimals != null">#{decimals},</if>
+            <if test="isNative != null and isNative != ''">#{isNative},</if>
+            <if test="logoUrl != null and logoUrl != ''">#{logoUrl},</if>
+            <if test="status != null and status != ''">#{status},</if>
+            <if test="remark != null and remark != ''">#{remark},</if>
+            <if test="createBy != null and createBy != ''">#{createBy},</if>
+            sysdate()
+        )
+    </insert>
+
+    <update id="updateTokenConfig" parameterType="SysTokenConfig">
+        update sys_token_config
+        <set>
+            <if test="networkType != null and networkType != ''">network_type = #{networkType},</if>
+            <if test="tokenSymbol != null and tokenSymbol != ''">token_symbol = #{tokenSymbol},</if>
+            <if test="tokenName != null and tokenName != ''">token_name = #{tokenName},</if>
+            <if test="contractAddress != null">contract_address = #{contractAddress},</if>
+            <if test="decimals != null">decimals = #{decimals},</if>
+            <if test="isNative != null and isNative != ''">is_native = #{isNative},</if>
+            <if test="logoUrl != null">logo_url = #{logoUrl},</if>
+            <if test="status != null and status != ''">status = #{status},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="updateBy != null and updateBy != ''">update_by = #{updateBy},</if>
+            update_time = sysdate()
+        </set>
+        where token_id = #{tokenId}
+    </update>
+
+    <delete id="deleteTokenConfigById" parameterType="Long">
+        delete from sys_token_config where token_id = #{tokenId}
+    </delete>
+
+    <delete id="deleteTokenConfigByIds" parameterType="Long">
+        delete from sys_token_config where token_id in
+        <foreach item="tokenId" collection="array" open="(" separator="," close=")">
+            #{tokenId}
+        </foreach>
+    </delete>
+
+</mapper>

@@ -1,0 +1,38 @@
+<div>
+    <h2>💰 充值成功！</h2>
+    <p>您好 <strong>{{username}}</strong>，</p>
+    <p>您的充值订单已成功完成，积分已到账！</p>
+    <div class="info-box">
+        <p><strong>订单详情</strong></p>
+        <ul>
+            <li>订单号：<code>{{order_no}}</code></li>
+            <li>充值积分：<strong>{{credits_amount}}</strong></li>
+            <li>赠送积分：<strong>{{bonus_credits}}</strong></li>
+            <li>支付金额：<strong>{{pay_amount}} {{pay_token}}</strong></li>
+            <li>支付网络：{{pay_network}}</li>
+            <li>交易哈希：<code style="font-size: 11px;">{{tx_hash}}</code></li>
+        </ul>
+    </div>
+    <h3>账户余额更新</h3>
+    <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
+        <tr style="background: #f9f9f9;">
+            <td style="padding: 10px; border: 1px solid #ddd;">充值前余额</td>
+            <td style="padding: 10px; border: 1px solid #ddd; text-align: right;">{{balance_before}} 积分</td>
+        </tr>
+        <tr style="background: #f0f7ff;">
+            <td style="padding: 10px; border: 1px solid #ddd;">本次充值</td>
+            <td style="padding: 10px; border: 1px solid #ddd; text-align: right; font-weight: bold; color: #667eea;">
+                +{{total_credits}} 积分
+            </td>
+        </tr>
+        <tr style="background: #f9f9f9;">
+            <td style="padding: 10px; border: 1px solid #ddd;"><strong>当前余额</strong></td>
+            <td
+                style="padding: 10px; border: 1px solid #ddd; text-align: right; font-weight: bold; font-size: 18px; color: #28a745;">
+                {{current_balance}} 积分
+            </td>
+        </tr>
+    </table>
+    <a href="{{app_url}}/generate/create" class="button">立即生成视频</a>
+    <p style="font-size: 12px; color: #666;">交易将在区块链浏览器中永久保存，您可以点击<a href="{{explorer_url}}">这里</a>查看。</p>
+</div>
